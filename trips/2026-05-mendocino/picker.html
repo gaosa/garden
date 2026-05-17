@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026/05 Mendocino — Inbox Picker</title>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --bg: #fafaf7;
+    --panel: #ffffff;
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #2563eb;
+    --day1: #16a34a;
+    --day2: #ea580c;
+    --day3: #7c3aed;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+    --slot-empty: #f9fafb;
+    --slot-hover: #eef2ff;
+    --slot-active: #dbeafe;
+  }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+  }
+  header {
+    padding: 14px 20px; background: var(--panel); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  header h1 { margin: 0; font-size: 17px; font-weight: 600; }
+  header .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  header .actions { display: flex; gap: 8px; }
+  header button {
+    padding: 6px 12px; border: 1.5px solid var(--border); background: var(--panel); color: var(--text);
+    border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer;
+  }
+  header button:hover { border-color: #c7c7c2; }
+  header button.primary { background: var(--accent); color: white; border-color: transparent; }
+
+  .help-bar {
+    padding: 8px 20px; background: #fef9c3; color: #713f12; font-size: 12px; border-bottom: 1px solid #fde68a;
+  }
+  .help-bar b { font-weight: 600; }
+
+  main {
+    display: grid; grid-template-columns: 1fr 480px;
+    height: calc(100vh - 90px); min-height: 600px;
+  }
+  @media (max-width: 1024px) {
+    main { grid-template-columns: 1fr; height: auto; }
+    .right { border-left: none !important; border-top: 1px solid var(--border); }
+  }
+  .left, .right { overflow-y: auto; padding: 14px 18px; }
+  .right { border-left: 1px solid var(--border); background: #fbfbf8; }
+
+  /* LEFT: Inventory */
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .filter-chip {
+    padding: 4px 10px; border-radius: 14px; border: 1.5px solid var(--border); background: var(--panel);
+    font-size: 12px; cursor: pointer; transition: all .12s;
+  }
+  .filter-chip:hover { border-color: #9ca3af; }
+  .filter-chip.on { background: var(--text); color: white; border-color: transparent; }
+  .search { width: 100%; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 13px; margin-bottom: 10px; }
+
+  .region {
+    margin-bottom: 16px; background: var(--panel); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden;
+  }
+  .region-header {
+    padding: 10px 14px; background: linear-gradient(135deg, #f5f5f0 0%, #fff 100%);
+    font-size: 13px; font-weight: 600; cursor: pointer; user-select: none;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .region-body { padding: 6px 8px; display: block; }
+  .region.collapsed .region-body { display: none; }
+  .region.collapsed .arrow { transform: rotate(-90deg); }
+  .arrow { display: inline-block; transition: transform .15s; font-size: 10px; color: var(--muted); }
+
+  .item {
+    padding: 8px 10px; margin: 4px 0; border-radius: 7px; cursor: grab;
+    border: 1px solid transparent; background: white; transition: background .12s, border-color .12s;
+    user-select: none;
+  }
+  .item:hover { background: #f9fafb; border-color: var(--border); }
+  .item.used { opacity: .45; }
+  .item.dragging { opacity: .35; cursor: grabbing; }
+  .item-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 2px; }
+  .item-name { font-size: 13px; font-weight: 500; }
+  .item-marker { font-size: 11px; }
+  .badge {
+    font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 500;
+    background: #e5e7eb; color: #374151;
+  }
+  .badge.eat { background: #ecfccb; color: #4d7c0f; }
+  .badge.sleep { background: #ede9fe; color: #6d28d9; }
+  .badge.activity { background: #fef3c7; color: #92400e; }
+  .badge.sight { background: #dbeafe; color: #1e40af; }
+  .badge.winery { background: #fce7f3; color: #9d174d; }
+  .badge.drive { background: #f3f4f6; color: #6b7280; }
+  .item-desc { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .item-actions { font-size: 11px; margin-top: 4px; }
+  .item-actions button {
+    padding: 2px 8px; font-size: 11px; border: 1px solid var(--border); background: white; cursor: pointer; border-radius: 4px; margin-right: 4px;
+  }
+  .item-actions button:hover { background: #f3f4f6; }
+
+  /* RIGHT: Schedule */
+  .day-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+  .day-tab {
+    flex: 1; padding: 8px; border-radius: 6px; cursor: pointer; text-align: center;
+    font-size: 12px; font-weight: 500; border: 1.5px solid var(--border); background: var(--panel);
+    color: var(--muted);
+  }
+  .day-tab[data-day="1"].active { background: var(--day1); color: white; border-color: transparent; }
+  .day-tab[data-day="2"].active { background: var(--day2); color: white; border-color: transparent; }
+  .day-tab[data-day="3"].active { background: var(--day3); color: white; border-color: transparent; }
+  .day-tab .count { display: inline-block; margin-left: 4px; padding: 0 5px; border-radius: 8px; background: rgba(0,0,0,.1); font-size: 10px; }
+  .day-tab.active .count { background: rgba(255,255,255,.25); }
+
+  .slot {
+    background: var(--panel); border: 1.5px dashed var(--border); border-radius: 8px;
+    padding: 8px 10px; margin-bottom: 8px; min-height: 50px;
+    transition: background .15s, border-color .15s;
+  }
+  .slot.drag-over { background: var(--slot-active); border-color: var(--accent); border-style: solid; }
+  .slot-header {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px;
+  }
+  .slot-empty-hint { font-size: 11px; color: #9ca3af; padding: 6px 0; font-style: italic; }
+  .slot-item {
+    display: flex; align-items: flex-start; gap: 8px; padding: 6px 8px; margin: 3px 0;
+    background: #f9fafb; border-radius: 5px; font-size: 12px;
+    cursor: grab;
+  }
+  .slot-item .name { flex: 1; }
+  .slot-item .name b { font-weight: 600; }
+  .slot-item .remove { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; padding: 0 4px; }
+  .slot-item .remove:hover { color: #dc2626; }
+
+  /* Modal */
+  .modal-bg {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1000;
+    align-items: center; justify-content: center;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: white; border-radius: 12px; padding: 20px; max-width: 700px; width: 90%; max-height: 80vh;
+    overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  }
+  .modal h2 { margin: 0 0 12px; font-size: 16px; }
+  .modal textarea {
+    width: 100%; height: 360px; padding: 10px; font-family: ui-monospace, "SF Mono", Monaco, monospace;
+    font-size: 12px; border: 1px solid var(--border); border-radius: 6px; resize: vertical;
+  }
+  .modal-buttons { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+  .modal-buttons button {
+    padding: 7px 14px; border: 1.5px solid var(--border); background: white; border-radius: 6px;
+    font-size: 13px; cursor: pointer;
+  }
+  .modal-buttons button.primary { background: var(--accent); color: white; border-color: transparent; }
+
+  /* Add-to dropdown */
+  .add-menu {
+    position: absolute; z-index: 100; background: white; border: 1px solid var(--border);
+    border-radius: 6px; box-shadow: 0 6px 24px rgba(0,0,0,.12); padding: 4px; min-width: 200px;
+  }
+  .add-menu button {
+    display: block; width: 100%; text-align: left; padding: 6px 10px; background: none; border: none;
+    cursor: pointer; font-size: 12px; border-radius: 4px;
+  }
+  .add-menu button:hover { background: #f3f4f6; }
+  .add-menu .menu-day { font-weight: 600; padding: 4px 10px; font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div style="padding:8px 24px;background:#f9fafb;border-bottom:1px solid #e5e7eb;font-size:12px;color:#6b7280">
+  <a href="/garden/" style="color:#6b7280;text-decoration:none">🌱 Garden</a> &nbsp;›&nbsp;
+  <a href="../../" style="color:#6b7280;text-decoration:none">Trips</a> &nbsp;›&nbsp;
+  <a href="./" style="color:#6b7280;text-decoration:none">Mendocino</a> &nbsp;›&nbsp;
+  <span style="color:#1a1a1a;font-weight:500">Picker</span>
+  <span style="float:right">🗺️ <a href="plans.html" style="color:#6b7280">方案对比</a></span>
+</div>
+
+<header>
+  <div>
+    <h1>📋 Mendocino Inbox Picker</h1>
+    <div class="sub">5/23-5/25 · 拖拽 / 点 + 加入计划 · 状态自动保存到本机</div>
+  </div>
+  <div class="actions">
+    <button id="btnReset">↻ 清空</button>
+    <button id="btnExport" class="primary">📋 导出 markdown</button>
+  </div>
+</header>
+
+<div class="help-bar">
+  💡 <b>用法</b>: 拖拽左侧项目到右侧时段格子,或点项目下面的"加入..."按钮选目标。<b>R/键盘 1/2/3</b> 快速切换 Day。所有改动自动保存。
+</div>
+
+<main>
+  <!-- LEFT: Inventory -->
+  <section class="left">
+    <div class="filters" id="typeFilters">
+      <span class="filter-chip on" data-type="all">全部</span>
+      <span class="filter-chip" data-type="sight">🎯 景点</span>
+      <span class="filter-chip" data-type="activity">🚣 活动</span>
+      <span class="filter-chip" data-type="eat">🍽️ 吃饭</span>
+      <span class="filter-chip" data-type="winery">🍷 酒庄</span>
+      <span class="filter-chip" data-type="sleep">🛏️ 住宿</span>
+      <span class="filter-chip" data-type="drive">🚗 沿途</span>
+    </div>
+    <input type="search" class="search" id="searchBox" placeholder="搜索 (中英文均可)…">
+    <div id="inventory"></div>
+  </section>
+
+  <!-- RIGHT: Schedule -->
+  <section class="right">
+    <div class="day-tabs" id="dayTabs">
+      <div class="day-tab active" data-day="1">Day 1 <span class="sub">5/23</span> <span class="count" id="cnt1">0</span></div>
+      <div class="day-tab" data-day="2">Day 2 <span class="sub">5/24</span> <span class="count" id="cnt2">0</span></div>
+      <div class="day-tab" data-day="3">Day 3 <span class="sub">5/25</span> <span class="count" id="cnt3">0</span></div>
+    </div>
+    <div id="schedule"></div>
+  </section>
+</main>
+
+<!-- Export modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2>📋 导出 markdown — 复制到 trip 文档的 <code>## Dates</code> 段</h2>
+    <textarea id="exportText" readonly></textarea>
+    <div class="modal-buttons">
+      <button id="btnCopy">复制到剪贴板</button>
+      <button id="btnCloseModal" class="primary">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA — Inventory (drawn from trip's Inbox + Reddit research)
+// ============================================================
+
+const SLOTS = ['早餐', '上午', '午餐', '下午', '晚餐', '夜间'];
+
+const DAYS = [
+  { id: 1, label: 'Day 1', date: '5/23/2026 周六' },
+  { id: 2, label: 'Day 2', date: '5/24/2026 周日' },
+  { id: 3, label: 'Day 3', date: '5/25/2026 周一 (Memorial Day)' },
+];
+
+// Region-grouped inventory. Each item: id, name, type, marker, desc, source
+const INVENTORY = [
+  {
+    region: '一、Sonoma County (Sonoma · Healdsburg · Santa Rosa · Sebastopol)',
+    items: [
+      // sights
+      { id: 'sonomaPlaza', name: 'Sonoma Plaza', type: 'sight', marker: '⭐', desc: '加州最大 town plaza,草坪 + 历史建筑。"阳光摊在上面,人坐下来就不太想走"', src: '小红书' },
+      { id: 'sonomaOverlook', name: 'Sonoma Overlook Trail', type: 'sight', marker: '⭐', desc: '落日时分爬,山脊上望远,小镇/酒庄/云雾层叠。约 2.6 mi 来回,中等', src: '小红书' },
+      { id: 'schulz', name: 'Charles M. Schulz Museum (史努比)', type: 'sight', marker: '⭐', desc: 'Santa Rosa,Mendocino 路上顺路打卡', src: '小红书' },
+      { id: 'safari', name: 'Safari West', type: 'activity', marker: '🆕', desc: 'Santa Rosa 非洲野生动物 safari,~$130/人,需预约', src: '研究' },
+      { id: 'healdsburg', name: 'Healdsburg Plaza', type: 'sight', marker: '🆕', desc: '比 Sonoma Plaza 更精致小资,周边都是 tasting room', src: '研究' },
+      { id: 'russianRiver', name: 'Russian River + Veterans Memorial Beach', type: 'sight', marker: '🆕', desc: 'Healdsburg 河边,可野餐', src: '研究' },
+      { id: 'theBarlow', name: 'The Barlow (Sebastopol)', type: 'sight', marker: '🆕🔥', desc: 'Reddit 推荐:餐厅/小酒馆/手作店集合体,半天 + 晚餐', src: 'Reddit' },
+      // wineries
+      { id: 'gundlach', name: 'Gundlach Bundschu', type: 'winery', marker: '🆕', desc: 'Sonoma,加州最老酒庄之一,山顶 view。需预约', src: '研究' },
+      { id: 'buenaVista', name: 'Buena Vista Winery', type: 'winery', marker: '🆕', desc: 'Sonoma,历史最老,氛围老派', src: '研究' },
+      { id: 'scribe', name: 'Scribe Winery', type: 'winery', marker: '🆕', desc: 'Sonoma,网红西班牙别墅风,社交媒体爆款', src: '研究' },
+      { id: 'jordan', name: 'Jordan Vineyard', type: 'winery', marker: '🆕', desc: 'Healdsburg,法式庄园', src: '研究' },
+      { id: 'macrostie', name: 'MacRostie Winery', type: 'winery', marker: '🆕', desc: 'Healdsburg,Pinot/Chardonnay,view 极好,露台 tasting', src: '研究' },
+      { id: 'ironHorse', name: 'Iron Horse', type: 'winery', marker: '🆕', desc: 'Sebastopol,起泡酒,户外露台', src: '研究' },
+      // eat
+      { id: 'girlAndFig', name: 'the girl & the fig', type: 'eat', marker: '🆕', desc: 'Sonoma Plaza,法式南欧菜,Sonoma 经典', src: '研究' },
+      { id: 'eldorado', name: 'El Dorado Kitchen', type: 'eat', marker: '🆕', desc: 'Sonoma Plaza,庭院环境', src: '研究' },
+      { id: 'valette', name: 'Valette', type: 'eat', marker: '🆕', desc: 'Healdsburg,New American 米其林推荐', src: '研究' },
+      { id: 'singleThread', name: 'SingleThread', type: 'eat', marker: '🆕', desc: 'Healdsburg,米其林三星,需提前 1-2 月订(不现实)', src: '研究' },
+      { id: 'brassRabbit', name: 'Brass Rabbit', type: 'eat', marker: '🆕', desc: 'Healdsburg,性价比 New American', src: '研究' },
+      { id: 'costeaux', name: 'Costeaux French Bakery', type: 'eat', marker: '🆕', desc: 'Healdsburg,早餐 / 三明治', src: '研究' },
+      { id: 'birdBottle', name: 'Bird & the Bottle', type: 'eat', marker: '🆕', desc: 'Santa Rosa,当地热门 Asian-American fusion', src: '研究' },
+      { id: 'rockerOyster', name: 'Rocker Oysterfellers', type: 'eat', marker: '🆕🔥', desc: 'Valley Ford(Bodega 路上),Reddit:"a must for a drink and a meal",生蚝 + 小镇氛围', src: 'Reddit' },
+      // sleep
+      { id: 'h2hotel', name: 'h2hotel', type: 'sleep', marker: '🆕', desc: 'Healdsburg,现代 boutique,步行到 Plaza', src: '研究' },
+      { id: 'hotelHeald', name: 'Hotel Healdsburg', type: 'sleep', marker: '🆕', desc: '同集团,更高端', src: '研究' },
+      { id: 'madrona', name: 'The Madrona', type: 'sleep', marker: '🆕', desc: 'Healdsburg,维多利亚庄园,浪漫', src: '研究' },
+      { id: 'hyatt', name: 'Hyatt Regency Sonoma Wine Country', type: 'sleep', marker: '⭐', desc: 'Santa Rosa,博主用 C4 房券,"除餐厅迷你外体验都超预期"', src: '小红书' },
+      { id: 'vintners', name: 'Vintners Resort', type: 'sleep', marker: '🆕', desc: 'Santa Rosa,住在葡萄园里', src: '研究' },
+    ]
+  },
+  {
+    region: '二、Bodega Bay + Sonoma Coast (沿海)',
+    items: [
+      { id: 'bodegaHead', name: 'Bodega Head 海岸步道', type: 'sight', marker: '⭐', desc: '"内湾沉静,外海激荡,浪花一次次撞击岩石",看海鸟和海豹', src: '小红书' },
+      { id: 'bodegaDunes', name: 'Bodega Dunes Beach', type: 'sight', marker: '🆕', desc: '沙滩散步', src: '研究' },
+      { id: 'doranPark', name: 'Doran Regional Park', type: 'sight', marker: '🆕', desc: '平静内湾沙滩,适合野餐', src: '研究' },
+      { id: 'hitchcock', name: 'The Birds 取景地', type: 'sight', marker: '🆕', desc: 'Hitchcock《群鸟》Bodega 小镇 + 教堂(约 6 mi 内陆)', src: '研究' },
+      { id: 'goatRock', name: 'Goat Rock Beach (Jenner)', type: 'sight', marker: '🆕🔥', desc: 'Russian River 入海口,Reddit 多次提到"stunning",海豹聚集', src: 'Reddit' },
+      { id: 'shellBeach', name: 'Shell Beach (tide pools)', type: 'sight', marker: '🆕🔥', desc: 'Sonoma Coast SP,Reddit 推荐 tide pool 圣地。出发前查潮汐表', src: 'Reddit' },
+      { id: 'pointReyes', name: 'Point Reyes Lighthouse + Tomales Bay 生蚝', type: 'sight', marker: '🆕', desc: '如选 Hwy 1 路线,沿途必停', src: 'Reddit' },
+      { id: 'zipline', name: 'Sonoma Canopy Tours / Ziplining', type: 'activity', marker: '🆕', desc: 'Occidental 附近', src: 'Reddit' },
+      // eat
+      { id: 'spudPoint', name: 'Spud Point Crab Co.', type: 'eat', marker: '⭐⭐', desc: '"奔着 crab sandwich 去的,却被 chowder 征服",头号必去,11am 前到', src: '小红书' },
+      { id: 'fishCove', name: "Fisherman's Cove", type: 'eat', marker: '🆕', desc: 'crab sandwich + 海边野餐桌', src: '研究' },
+      { id: 'terrapin', name: 'Terrapin Creek Cafe', type: 'eat', marker: '🆕', desc: 'Bodega 唯一一家精致正餐(米其林 Bib)', src: '研究' },
+      { id: 'tidesWharf', name: 'Tides Wharf Restaurant', type: 'eat', marker: '🆕', desc: '大众化海景餐厅', src: '研究' },
+      { id: 'theCasino', name: 'The Casino (Bodega 镇,不是赌场)', type: 'eat', marker: '🆕🔥', desc: 'Reddit 当地人推:"dive bar 外表,AMAZING food",隐藏冷门', src: 'Reddit' },
+      { id: 'drakesFire', name: 'Drakes Fireside', type: 'eat', marker: '🆕', desc: 'Bodega Bay,Reddit 推 chill 酒吧', src: 'Reddit' },
+      { id: 'sonomaCoastVy', name: 'Sonoma Coast Vineyards tasting room', type: 'winery', marker: '🆕', desc: 'Bodega Bay 镇内,不想跑酒庄就在 home base 品', src: 'Reddit' },
+      { id: 'fortRoss', name: 'Fort Ross Vineyards', type: 'winery', marker: '🆕', desc: 'Hwy 1 沿海,view 一流', src: 'Reddit' },
+      // sleep
+      { id: 'bodegaLodge', name: 'Bodega Bay Lodge', type: 'sleep', marker: '🆕', desc: '海景房,Bodega 最高端', src: '研究' },
+      { id: 'innTides', name: 'Inn at the Tides', type: 'sleep', marker: '🆕', desc: '中端海景', src: '研究' },
+      { id: 'bodegaCoastInn', name: 'Bodega Coast Inn & Suites', type: 'sleep', marker: '🆕', desc: '性价比', src: '研究' },
+    ]
+  },
+  {
+    region: '三、Mendocino + Fort Bragg (核心目的地)',
+    items: [
+      // sights / activities
+      { id: 'botanicalGdn', name: 'Mendocino Coast Botanical Gardens', type: 'sight', marker: '⭐⭐', desc: 'Reddit + 小红书一致最高赞,"花园直达大海",2-3h,可参加 guided tour', src: '小红书+Reddit' },
+      { id: 'headlands', name: 'Mendocino Headlands State Park', type: 'sight', marker: '⭐', desc: '小镇旁悬崖步道,免费,傍晚饭前散步绝佳', src: '小红书' },
+      { id: 'mendoArch', name: 'Mendocino Arch (网红拱门)', type: 'sight', marker: '⭐', desc: '上午去水最蓝', src: '小红书' },
+      { id: 'glassBeach', name: 'Glass Beach', type: 'sight', marker: '⭐⚠️', desc: 'Reddit:玻璃已被捡得差不多,"现在主要是个海豹观察点"。捡玻璃违法', src: '小红书+Reddit' },
+      { id: 'galleryBook', name: 'Gallery Bookshop', type: 'sight', marker: '⭐', desc: 'Mendocino downtown,海边书店,店主健谈,店猫 Catsby', src: '小红书' },
+      { id: 'littleRiver', name: 'Little River', type: 'sight', marker: '⭐', desc: '离 SCP Lodge 不远,浮潜或看景', src: '小红书' },
+      { id: 'pointCabrillo', name: 'Point Cabrillo Light Station', type: 'sight', marker: '🆕', desc: '灯塔 + 草坡走到海,免费', src: '研究' },
+      { id: 'russianGulch', name: 'Russian Gulch State Park', type: 'sight', marker: '🆕', desc: "Devil's Punchbowl 海蚀洞 + 瀑布徒步(约 5 mi,可选短版)", src: '研究' },
+      { id: 'vanDamme', name: 'Van Damme State Park', type: 'sight', marker: '🆕', desc: 'Pygmy Forest(侏儒森林,奇观)+ Fern Canyon', src: '研究' },
+      { id: 'navarroRedwoods', name: 'Navarro Redwoods (沿 128)', type: 'drive', marker: '🆕', desc: 'Paul Dimmick Campground 之后找 pullout 走进林子', src: 'Reddit' },
+      { id: 'hendyWoods', name: 'Hendy Woods State Park', type: 'sight', marker: '🆕🔥', desc: 'Hwy 128 Philo,Old-growth redwood 短走,比 Navarro 更壮观', src: 'Reddit' },
+      { id: 'mendoArtCenter', name: 'Mendocino Art Center', type: 'sight', marker: '🆕', desc: 'downtown,看当时有什么 exhibition', src: 'Reddit' },
+      { id: 'mackerricher', name: 'MacKerricher 沙丘', type: 'sight', marker: '🆕', desc: 'Fort Bragg 北,几英里沙丘步道', src: 'Reddit' },
+      { id: 'seaGlassMuseum', name: 'Sea Glass Museum', type: 'sight', marker: '🆕', desc: 'Fort Bragg,玻璃滩历史介绍,10 min 打卡', src: 'Reddit' },
+      { id: 'modelRailroad', name: 'Model Railroad Museum', type: 'sight', marker: '🆕', desc: 'Skunk Depot 后,5 min 顺路', src: 'Reddit' },
+      // activities
+      { id: 'skunkRailBikes', name: 'Skunk Train Rail Bikes', type: 'activity', marker: '⭐', desc: 'Fort Bragg,山里铁轨双人电助力车,~2h,需预约,~$200/双人车', src: '小红书' },
+      { id: 'skunkGlenBlair', name: 'Skunk Train + Glen Blair Bar 夜场', type: 'activity', marker: '🆕🔥', desc: '周六晚火车进森林酒吧,live music + 大火堆 + s\'mores 套装', src: 'Reddit' },
+      { id: 'kayakSeaCave', name: 'Kayak Mendocino — Sea Cave Tour', type: 'activity', marker: '🆕🔥', desc: 'Reddit 反复强推,"会湿脚但值得",~2-3h,需预约', src: 'Reddit' },
+      { id: 'catchACanoe', name: 'Catch-a-Canoe & Bicycles Too', type: 'activity', marker: '🆕🔥', desc: 'Stanford Inn 内,划独木舟上 Big River,配合潮汐去返,浪漫且不累', src: 'Reddit' },
+      { id: 'urchinPick', name: '海边捡海胆', type: 'activity', marker: '⭐⚠️', desc: '⚠️ 加州 sea urchin 需 sport fishing license,且规则在变,出发前查 wildlife.ca.gov', src: '小红书' },
+      // eat
+      { id: 'lunaTrattoria', name: 'Luna Trattoria', type: 'eat', marker: '⭐', desc: 'Mendocino,意大利菜,⚠️ 必预约 garden 位!炸鱿鱼圈、海鲜意面、牛排、提拉米苏,有驻唱', src: '小红书' },
+      { id: 'mayanFusion', name: 'Mayan Fusion', type: 'eat', marker: '⭐', desc: 'Fort Bragg,墨西哥菜,价格便宜,紧邻 Skunk Train', src: '小红书' },
+      { id: 'harvestMkt', name: "Harvest Market at Mendosa's", type: 'eat', marker: '⭐', desc: 'Mendocino downtown,当地农场超市,可买 Mendocino 本地霞多丽', src: '小红书' },
+      { id: 'harborHouse', name: 'Harbor House Inn (Elk)', type: 'eat', marker: '🆕🔥⭐⭐', desc: '⭐⭐⭐ 米其林二星,Mendocino 南 ~15 mi,海崖花园直达 cove,部分食材自采。lunch 比 dinner 便宜很多', src: 'Reddit' },
+      { id: 'cafeBeau', name: 'Cafe Beaujolais', type: 'eat', marker: '🆕', desc: 'Mendocino,小镇精致正餐,花园', src: '研究' },
+      { id: 'trillium', name: 'Trillium Café', type: 'eat', marker: '🆕', desc: 'Mendocino,海景 + 当地农产', src: '研究' },
+      { id: 'goodlife', name: 'Goodlife Cafe & Bakery', type: 'eat', marker: '🆕', desc: 'Mendocino,早餐', src: '研究' },
+      { id: 'princessSeafood', name: 'Princess Seafood', type: 'eat', marker: '🆕🔥', desc: 'Noyo Harbor Fort Bragg,全女性渔船,Reddit OP:"best meal there, wished we could eat twice"', src: 'Reddit' },
+      { id: 'flowMendocino', name: 'Flow Restaurant', type: 'eat', marker: '🆕', desc: 'Mendocino,屋顶海景', src: '研究' },
+      { id: 'seaPalCove', name: 'Sea Pal Cove', type: 'eat', marker: '🆕🔥', desc: 'Fort Bragg Noyo Harbor,Reddit 多人推:"best fish and chips ever",便宜', src: 'Reddit' },
+      { id: 'cowlicks', name: "Cowlick's 蘑菇冰淇淋", type: 'eat', marker: '🆕🔥', desc: 'Fort Bragg,candy cap mushroom 冰淇淋,猎奇必试', src: 'Reddit' },
+      // wineries
+      { id: 'pacificStar', name: 'Pacific Star Winery', type: 'winery', marker: '🆕🔥', desc: 'Fort Bragg 北 ~10 mi 海岸悬崖,Reddit:"wine eh but vibes/view spectacular",免费', src: 'Reddit' },
+      { id: 'pennyroyal', name: 'Pennyroyal Farm', type: 'winery', marker: '🆕', desc: '128 Boonville,山羊奶酪 + 葡萄酒 + 农场动物,1h 必访', src: '研究' },
+      { id: 'husch', name: 'Husch Vineyards', type: 'winery', marker: '🆕', desc: 'Anderson Valley,老牌,免费 tasting(罕见)', src: '研究' },
+      { id: 'goldeneye', name: 'Goldeneye / Roederer Estate', type: 'winery', marker: '🆕', desc: 'Anderson Valley,起泡酒', src: '研究' },
+      { id: 'boonvilleHotel', name: 'Boonville Hotel 餐厅', type: 'eat', marker: '🆕', desc: 'Anderson Valley,当地午餐', src: '研究' },
+      { id: 'gowans', name: "Gowan's", type: 'winery', marker: '🆕', desc: 'Anderson Valley,Reddit:cider "all stellar"', src: 'Reddit' },
+      { id: 'rockStop', name: 'Rock Stop (Philo)', type: 'sight', marker: '🆕', desc: 'Hwy 128 路边珠宝/工艺品店 + 拍照点', src: 'Reddit' },
+      // sleep
+      { id: 'scpLodge', name: 'SCP Mendocino Coast Lodge', type: 'sleep', marker: '⭐⭐', desc: 'Albion(Mendocino 南 10 min),博主强推海景房 + 阳台 + 火炉,12 号房最佳', src: '小红书' },
+      { id: 'heritageHouse', name: 'Heritage House Resort', type: 'sleep', marker: '🆕', desc: 'Little River,经典海崖度假村', src: '研究' },
+      { id: 'maccallum', name: 'MacCallum House Inn', type: 'sleep', marker: '🆕', desc: 'Mendocino downtown,维多利亚 B&B,步行进镇,Reddit 多人称赞', src: 'Reddit' },
+      { id: 'breweryGulch', name: 'Brewery Gulch Inn', type: 'sleep', marker: '🆕', desc: '海景 + 含早餐 + 含晚酒小食', src: '研究' },
+      { id: 'stanfordInn', name: 'Stanford Inn by the Sea', type: 'sleep', marker: '🆕', desc: '有机农场酒店,pet-friendly,Catch-a-Canoe 在这里', src: '研究' },
+      { id: 'littleRiverInn', name: 'Little River Inn', type: 'sleep', marker: '🆕', desc: '老牌,性价比比 SCP 好(Reddit 推荐)', src: 'Reddit' },
+      { id: 'andiron', name: 'Andiron Resort & Cabins', type: 'sleep', marker: '🆕', desc: 'Reddit 推 quirky cabin 风', src: 'Reddit' },
+      { id: 'wellerHouse', name: 'Weller House Inn', type: 'sleep', marker: '🆕', desc: 'Fort Bragg,"restored mansion,步行到 Glass Beach",便宜', src: 'Reddit' },
+    ]
+  },
+  {
+    region: '四、Hwy 1 南段 / 沿途',
+    items: [
+      { id: 'pointArena', name: 'Point Arena', type: 'sight', marker: '🆕', desc: 'Hwy 1 沿途停脚,Point Arena Pizza 海湾露台 + 灯塔', src: 'Reddit' },
+      { id: 'pointArenaLH', name: 'Point Arena Lighthouse', type: 'sight', marker: '🆕', desc: '加州西岸最高灯塔之一', src: 'Reddit' },
+    ]
+  },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+
+const STORAGE_KEY = 'mendocino_picker_v1';
+let state = {
+  // schedule[dayId][slotIdx] = [itemId, itemId, ...]
+  schedule: { 1: {}, 2: {}, 3: {} },
+  activeDay: 1,
+  filterType: 'all',
+  search: '',
+};
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved.schedule) state.schedule = saved.schedule;
+    }
+  } catch(e) { console.warn('load failed', e); }
+}
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ schedule: state.schedule }));
+}
+
+function getItem(id) {
+  for (const r of INVENTORY) {
+    for (const it of r.items) if (it.id === id) return it;
+  }
+  return null;
+}
+
+function isItemUsed(id) {
+  for (const day of [1,2,3]) {
+    for (const slot of Object.keys(state.schedule[day] || {})) {
+      if ((state.schedule[day][slot] || []).includes(id)) return true;
+    }
+  }
+  return false;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+
+function typeLabel(t) {
+  return ({
+    sight: '🎯 景', activity: '🚣 玩', eat: '🍽️ 吃',
+    sleep: '🛏️ 住', winery: '🍷 酒', drive: '🚗 过'
+  })[t] || t;
+}
+
+function renderInventory() {
+  const root = document.getElementById('inventory');
+  let html = '';
+  for (const region of INVENTORY) {
+    const filtered = region.items.filter(it => {
+      if (state.filterType !== 'all' && it.type !== state.filterType) return false;
+      if (state.search) {
+        const s = state.search.toLowerCase();
+        const blob = (it.name + ' ' + it.desc + ' ' + (it.src||'')).toLowerCase();
+        if (!blob.includes(s)) return false;
+      }
+      return true;
+    });
+    if (!filtered.length) continue;
+    html += `<div class="region" data-region="${region.region}">
+      <div class="region-header" onclick="this.parentElement.classList.toggle('collapsed')">
+        ${region.region}
+        <span><span class="badge">${filtered.length}</span> <span class="arrow">▾</span></span>
+      </div>
+      <div class="region-body">`;
+    for (const it of filtered) {
+      const used = isItemUsed(it.id);
+      html += `<div class="item ${used ? 'used' : ''}" draggable="true" data-id="${it.id}">
+        <div class="item-head">
+          <span class="badge ${it.type}">${typeLabel(it.type)}</span>
+          <span class="item-marker">${it.marker || ''}</span>
+          <span class="item-name">${it.name}</span>
+        </div>
+        <div class="item-desc">${it.desc}</div>
+        <div class="item-actions">
+          <button onclick="openAddMenu(event, '${it.id}')">加入…</button>
+          <span style="font-size:10px;color:#9ca3af">来源: ${it.src}</span>
+        </div>
+      </div>`;
+    }
+    html += `</div></div>`;
+  }
+  root.innerHTML = html;
+  attachItemDragHandlers();
+}
+
+function renderSchedule() {
+  const root = document.getElementById('schedule');
+  const day = state.activeDay;
+  const dayMeta = DAYS.find(d => d.id === day);
+  let html = `<div style="font-size:13px;color:var(--muted);margin-bottom:8px">${dayMeta.date}</div>`;
+  SLOTS.forEach((slotName, slotIdx) => {
+    const items = (state.schedule[day][slotIdx] || []);
+    html += `<div class="slot" data-day="${day}" data-slot="${slotIdx}">
+      <div class="slot-header"><span>${slotName}</span><span style="font-size:10px;color:#9ca3af">${items.length}</span></div>`;
+    if (items.length === 0) {
+      html += `<div class="slot-empty-hint">拖项目到这里 / 点项目"加入…"按钮</div>`;
+    } else {
+      for (const id of items) {
+        const it = getItem(id);
+        if (!it) continue;
+        html += `<div class="slot-item" draggable="true" data-id="${id}" data-from-day="${day}" data-from-slot="${slotIdx}">
+          <span class="badge ${it.type}">${typeLabel(it.type)}</span>
+          <span class="name"><b>${it.name}</b> <span style="color:var(--muted);font-size:11px">— ${(it.desc||'').slice(0, 60)}${(it.desc||'').length>60?'…':''}</span></span>
+          <button class="remove" onclick="removeItem(${day}, ${slotIdx}, '${id}')">✕</button>
+        </div>`;
+      }
+    }
+    html += `</div>`;
+  });
+  root.innerHTML = html;
+
+  // Update day count badges
+  for (const d of [1,2,3]) {
+    let cnt = 0;
+    for (const s of Object.values(state.schedule[d] || {})) cnt += s.length;
+    document.getElementById('cnt' + d).textContent = cnt;
+  }
+  attachSlotHandlers();
+}
+
+function rerender() {
+  renderInventory();
+  renderSchedule();
+}
+
+// ============================================================
+// MUTATIONS
+// ============================================================
+
+function addItem(day, slotIdx, itemId) {
+  if (!state.schedule[day][slotIdx]) state.schedule[day][slotIdx] = [];
+  if (state.schedule[day][slotIdx].includes(itemId)) return;
+  state.schedule[day][slotIdx].push(itemId);
+  save(); rerender();
+}
+
+function removeItem(day, slotIdx, itemId) {
+  const arr = state.schedule[day][slotIdx] || [];
+  state.schedule[day][slotIdx] = arr.filter(x => x !== itemId);
+  save(); rerender();
+}
+
+function moveItem(itemId, fromDay, fromSlot, toDay, toSlot) {
+  if (fromDay === toDay && fromSlot === toSlot) return;
+  removeItem(fromDay, fromSlot, itemId);
+  addItem(toDay, toSlot, itemId);
+}
+
+// ============================================================
+// DnD
+// ============================================================
+
+let dragData = null;
+function attachItemDragHandlers() {
+  document.querySelectorAll('.item').forEach(el => {
+    el.addEventListener('dragstart', e => {
+      dragData = { type: 'inventory', id: el.dataset.id };
+      el.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+    el.addEventListener('dragend', () => el.classList.remove('dragging'));
+  });
+}
+
+function attachSlotHandlers() {
+  document.querySelectorAll('.slot').forEach(slot => {
+    slot.addEventListener('dragover', e => {
+      e.preventDefault();
+      slot.classList.add('drag-over');
+    });
+    slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+    slot.addEventListener('drop', e => {
+      e.preventDefault();
+      slot.classList.remove('drag-over');
+      if (!dragData) return;
+      const day = parseInt(slot.dataset.day);
+      const slotIdx = parseInt(slot.dataset.slot);
+      if (dragData.type === 'inventory') {
+        addItem(day, slotIdx, dragData.id);
+      } else if (dragData.type === 'slot') {
+        moveItem(dragData.id, dragData.fromDay, dragData.fromSlot, day, slotIdx);
+      }
+      dragData = null;
+    });
+  });
+  document.querySelectorAll('.slot-item').forEach(el => {
+    el.addEventListener('dragstart', e => {
+      dragData = {
+        type: 'slot',
+        id: el.dataset.id,
+        fromDay: parseInt(el.dataset.fromDay),
+        fromSlot: parseInt(el.dataset.fromSlot)
+      };
+      e.dataTransfer.effectAllowed = 'move';
+    });
+  });
+}
+
+// ============================================================
+// Add menu
+// ============================================================
+
+function openAddMenu(event, itemId) {
+  event.stopPropagation();
+  closeAddMenu();
+  const menu = document.createElement('div');
+  menu.className = 'add-menu';
+  menu.id = 'addMenu';
+  let html = '';
+  for (const day of DAYS) {
+    html += `<div class="menu-day">${day.label} (${day.date.split(' ')[0]})</div>`;
+    SLOTS.forEach((slotName, slotIdx) => {
+      html += `<button onclick="addItem(${day.id}, ${slotIdx}, '${itemId}'); closeAddMenu()">↳ ${slotName}</button>`;
+    });
+  }
+  menu.innerHTML = html;
+  document.body.appendChild(menu);
+  const rect = event.target.getBoundingClientRect();
+  menu.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+  menu.style.left = Math.min(rect.left, window.innerWidth - 220) + 'px';
+  setTimeout(() => document.addEventListener('click', closeAddMenu, { once: true }), 0);
+}
+function closeAddMenu() {
+  const m = document.getElementById('addMenu');
+  if (m) m.remove();
+}
+
+// ============================================================
+// Export
+// ============================================================
+
+function exportMarkdown() {
+  let md = '## Dates\n\n';
+  for (const day of DAYS) {
+    md += `${day.date}\n\n`;
+    SLOTS.forEach((slotName, slotIdx) => {
+      const items = state.schedule[day.id][slotIdx] || [];
+      if (items.length === 0) {
+        md += `- ${slotName}\n`;
+      } else {
+        md += `- ${slotName}\n`;
+        for (const id of items) {
+          const it = getItem(id);
+          if (!it) continue;
+          md += `    - **${it.name}**${it.marker ? ' ' + it.marker : ''} — ${it.desc}\n`;
+        }
+      }
+    });
+    md += '\n';
+  }
+  return md;
+}
+
+// ============================================================
+// Wire up
+// ============================================================
+
+document.getElementById('typeFilters').addEventListener('click', e => {
+  if (e.target.classList.contains('filter-chip')) {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+    e.target.classList.add('on');
+    state.filterType = e.target.dataset.type;
+    renderInventory();
+  }
+});
+document.getElementById('searchBox').addEventListener('input', e => {
+  state.search = e.target.value;
+  renderInventory();
+});
+document.getElementById('dayTabs').addEventListener('click', e => {
+  const tab = e.target.closest('.day-tab');
+  if (!tab) return;
+  document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  state.activeDay = parseInt(tab.dataset.day);
+  renderSchedule();
+});
+document.getElementById('btnReset').addEventListener('click', () => {
+  if (confirm('清空所有规划?')) {
+    state.schedule = { 1: {}, 2: {}, 3: {} };
+    save(); rerender();
+  }
+});
+document.getElementById('btnExport').addEventListener('click', () => {
+  document.getElementById('exportText').value = exportMarkdown();
+  document.getElementById('modalBg').classList.add('show');
+});
+document.getElementById('btnCloseModal').addEventListener('click', () => {
+  document.getElementById('modalBg').classList.remove('show');
+});
+document.getElementById('btnCopy').addEventListener('click', () => {
+  const t = document.getElementById('exportText');
+  t.select();
+  navigator.clipboard.writeText(t.value).then(() => {
+    document.getElementById('btnCopy').textContent = '✓ 已复制';
+    setTimeout(() => document.getElementById('btnCopy').textContent = '复制到剪贴板', 1500);
+  });
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === '1' || e.key === '2' || e.key === '3') {
+    document.querySelector(`.day-tab[data-day="${e.key}"]`).click();
+  }
+});
+
+// Init
+load();
+rerender();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026/05 Mendocino — Trip</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --panel: #ffffff;
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #16a34a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", system-ui, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+  .container { max-width: 760px; margin: 0 auto; padding: 50px 24px 80px; }
+  .breadcrumb { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  .breadcrumb a { color: var(--muted); }
+  h1 { margin: 0 0 8px; font-size: 28px; font-weight: 700; }
+  .meta { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  .warn {
+    padding: 10px 14px; background: #fef3c7; border-left: 3px solid #f59e0b;
+    border-radius: 4px; font-size: 13px; margin-bottom: 28px;
+  }
+  .cards { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 600px) { .cards { grid-template-columns: 1fr; } }
+  .card {
+    padding: 20px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    text-decoration: none; color: var(--text); transition: all .15s;
+    display: flex; flex-direction: column;
+  }
+  .card:hover {
+    border-color: var(--accent); transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(22,163,74,.1);
+  }
+  .card .emoji { font-size: 28px; margin-bottom: 8px; }
+  .card h3 { margin: 0 0 6px; font-size: 16px; font-weight: 600; }
+  .card p { margin: 0; color: var(--muted); font-size: 13px; flex: 1; }
+  .card .arrow { color: var(--accent); font-size: 13px; margin-top: 8px; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="breadcrumb">
+    <a href="/garden/">🌱 Garden</a> &nbsp;›&nbsp; Trips &nbsp;›&nbsp; Mendocino
+  </div>
+
+  <h1>2026/05 Mendocino + Sonoma 海岸线</h1>
+  <div class="meta">5/23 (周六) - 5/25 (周一,Memorial Day) · San Jose 自驾 · 3 天 2 夜 · 2 人</div>
+
+  <div class="warn">
+    ⚠️ <b>Memorial Day 长周末</b> — 住宿、热门餐厅、Skunk Train、酒庄 tasting 都需提前预订。
+  </div>
+
+  <div class="cards">
+    <a class="card" href="plans.html">
+      <div class="emoji">🗺️</div>
+      <h3>方案对比</h3>
+      <p>4 个备选方案(A 安全推荐 / B 海岸线 / C Skunk Train / D Reddit 加持),含 Leaflet 地图。</p>
+      <div class="arrow">查看方案 →</div>
+    </a>
+    <a class="card" href="picker.html">
+      <div class="emoji">📋</div>
+      <h3>Inbox Picker</h3>
+      <p>所有候选景点/餐厅/活动列表,拖拽到 Day 1/2/3 的时段格,实时导出 markdown。</p>
+      <div class="arrow">开始挑选 →</div>
+    </a>
+  </div>
+
+  <p style="margin-top:40px; color:var(--muted); font-size:12px">
+    数据来源:小红书 4 个旅行帖 + Reddit 8 个本地社区 thread + 我的额外研究。完整调研在 <a href="https://github.com/gaosa/personal" style="color:var(--muted)">私密 personal repo</a>。
+  </p>
+</div>
+
+</body>
+</html>

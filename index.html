@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Siang's Garden 🌱</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --panel: #ffffff;
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #16a34a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .container { max-width: 760px; margin: 0 auto; padding: 60px 24px 80px; }
+  header { margin-bottom: 48px; }
+  h1 { margin: 0 0 8px; font-size: 32px; font-weight: 700; letter-spacing: -.02em; }
+  .tagline { color: var(--muted); font-size: 15px; }
+  h2 {
+    margin: 36px 0 12px; font-size: 18px; font-weight: 600;
+    border-bottom: 1px solid var(--border); padding-bottom: 8px;
+  }
+  .item-list { list-style: none; padding: 0; margin: 0; }
+  .item-list li { margin: 10px 0; }
+  .item-list a {
+    display: flex; align-items: baseline; gap: 8px;
+    padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--panel); text-decoration: none; color: var(--text);
+    transition: all .12s;
+  }
+  .item-list a:hover {
+    border-color: var(--accent); transform: translateX(2px);
+    box-shadow: 0 2px 8px rgba(22,163,74,.08);
+  }
+  .item-list .date { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .item-list .title { font-weight: 500; flex: 1; }
+  .item-list .desc { color: var(--muted); font-size: 13px; width: 100%; margin-left: 0; }
+  .item-list a { flex-wrap: wrap; }
+
+  .empty {
+    color: var(--muted); font-style: italic; padding: 20px; background: var(--panel);
+    border: 1px dashed var(--border); border-radius: 8px; font-size: 13px;
+  }
+  footer {
+    margin-top: 60px; padding-top: 16px; border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 12px; text-align: center;
+  }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+  <h1>🌱 Siang's Garden</h1>
+  <p class="tagline">A small public space for things I've made — trips, notes, sketches. Some are works in progress.</p>
+</header>
+
+<h2>🗺️ Trips</h2>
+<ul class="item-list">
+  <li>
+    <a href="trips/2026-05-mendocino/">
+      <span class="date">2026/05</span>
+      <span class="title">Mendocino + Sonoma 海岸线</span>
+      <span class="desc">San Jose 自驾,Memorial Day 长周末。3 天 2 夜,4 个备选方案 + 交互式 picker。</span>
+    </a>
+  </li>
+</ul>
+
+<h2>📝 Notes</h2>
+<div class="empty">(coming soon)</div>
+
+<h2>🛠️ Other</h2>
+<div class="empty">(coming soon)</div>
+
+<footer>
+  Updated 2026-05-17 · <a href="https://github.com/gaosa/garden">source on GitHub</a>
+</footer>
+
+</div>
+
+</body>
+</html>
