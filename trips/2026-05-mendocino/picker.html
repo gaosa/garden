@@ -134,6 +134,15 @@
   .item.used { opacity: .55; border-style: dashed; }
   .item.dragging { opacity: .35; cursor: grabbing; }
   .item.has-warn { border-left: 3px solid var(--warn-border); }
+  .item.unavailable {
+    border-left: 3px solid #dc2626;
+    background: #fef2f2;
+  }
+  .item.unavailable .item-name { color: #7f1d1d; }
+  .item.unavailable .blocked-badge {
+    display: inline-block; font-size: 10px; padding: 1px 5px; border-radius: 3px;
+    background: #dc2626; color: white; font-weight: 600; margin-left: 4px;
+  }
   .item-head { display: flex; align-items: flex-start; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
   .item-name { font-size: 13px; font-weight: 600; flex: 1; min-width: 0; }
   .item-marker { font-size: 11px; }
@@ -710,13 +719,16 @@ function renderInventory() {
     for (const it of filtered) {
       const used = isItemUsed(it.id);
       const hasWarn = (it.warnings && it.warnings.length) || /🚫|⚠️/.test(it.marker || '');
+      const unavailable = /🚫/.test(it.marker || '') ||
+        (it.warnings || []).some(w => /🚫|闭店|闭馆|closed|不可去|不可达/i.test(w));
       const p = state.priorities[it.id] || 0;
       const stars = [1,2,3].map(n => `<span class="star ${n<=p?'filled':''}" onclick="event.stopPropagation(); setPriority('${it.id}', ${n})" title="点 ${n} 星">★</span>`).join('');
-      html += `<div class="item ${used ? 'used' : ''} ${hasWarn ? 'has-warn' : ''}" draggable="true" data-id="${it.id}">
+      html += `<div class="item ${used ? 'used' : ''} ${unavailable ? 'unavailable' : (hasWarn ? 'has-warn' : '')}" draggable="true" data-id="${it.id}">
         <div class="item-head">
           <span class="badge ${it.type}">${typeLabel(it.type)}</span>
           <span class="item-marker">${it.marker || ''}</span>
           <span class="item-name">${it.name}</span>
+          ${unavailable ? '<span class="blocked-badge">🚫 行程期间不可去</span>' : ''}
         </div>
         <div class="priority-row">
           <span class="star-rating">${stars}</span>
