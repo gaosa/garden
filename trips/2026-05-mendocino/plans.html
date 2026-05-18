@@ -9,44 +9,21 @@
 <style>
   * { box-sizing: border-box; }
   :root {
-    --bg: #fafaf7;
-    --panel: #ffffff;
-    --text: #1a1a1a;
-    --muted: #6b7280;
-    --border: #e5e7eb;
-    --plan-a: #2563eb;
-    --plan-b: #0891b2;
-    --plan-c: #d97706;
-    --plan-d: #db2777;
-    --day1: #16a34a;
-    --day2: #ea580c;
-    --day3: #7c3aed;
+    --bg: #fafaf7; --panel: #ffffff; --text: #1a1a1a; --muted: #6b7280; --border: #e5e7eb;
+    --plan-a: #2563eb; --plan-b: #0891b2; --plan-c: #d97706; --plan-d: #db2777;
+    --day1: #16a34a; --day2: #ea580c; --day3: #7c3aed;
     --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
   }
   html, body { margin: 0; padding: 0; height: 100%; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.55;
-  }
-  header {
-    padding: 18px 24px 14px;
-    background: linear-gradient(135deg, #fff 0%, #f5f5f0 100%);
-    border-bottom: 1px solid var(--border);
-  }
-  header h1 { margin: 0 0 4px; font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; }
+  .breadcrumb { padding: 8px 24px; background: #f9fafb; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+  .breadcrumb a { color: var(--muted); text-decoration: none; }
+  header { padding: 18px 24px 14px; background: linear-gradient(135deg, #fff 0%, #f5f5f0 100%); border-bottom: 1px solid var(--border); }
+  header h1 { margin: 0 0 4px; font-size: 20px; font-weight: 600; }
   header .sub { color: var(--muted); font-size: 13px; }
   header .warn { display: inline-block; margin-left: 12px; padding: 2px 8px; background: #fef3c7; color: #92400e; border-radius: 4px; font-size: 12px; font-weight: 500; }
-  .plan-tabs {
-    display: flex; gap: 6px; padding: 12px 24px; background: var(--panel); border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-  }
-  .plan-tab {
-    padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500;
-    border: 1.5px solid var(--border); background: var(--panel); color: var(--muted);
-    white-space: nowrap; transition: all .15s ease; display: flex; align-items: center; gap: 6px;
-  }
+  .plan-tabs { display: flex; gap: 6px; padding: 12px 24px; background: var(--panel); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .plan-tab { padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; border: 1.5px solid var(--border); background: var(--panel); color: var(--muted); white-space: nowrap; transition: all .15s ease; display: flex; align-items: center; gap: 6px; }
   .plan-tab:hover { border-color: #c7c7c2; color: var(--text); }
   .plan-tab.active { color: white; border-color: transparent; box-shadow: var(--shadow); }
   .plan-tab[data-plan="A"].active { background: var(--plan-a); }
@@ -56,103 +33,71 @@
   .plan-tab .badge { font-size: 10px; padding: 1px 5px; border-radius: 3px; background: rgba(0,0,0,.08); }
   .plan-tab.active .badge { background: rgba(255,255,255,.25); }
 
-  main {
-    display: grid; grid-template-columns: 420px 1fr;
-    height: calc(100vh - 122px);
-  }
-  @media (max-width: 900px) {
-    main { grid-template-columns: 1fr; height: auto; }
-    #map { height: 50vh; }
-  }
+  main { display: grid; grid-template-columns: 460px 1fr; height: calc(100vh - 165px); }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; height: auto; } #map { height: 50vh; } }
   .sidebar { padding: 16px 20px 32px; overflow-y: auto; border-right: 1px solid var(--border); }
   #map { height: 100%; min-height: 400px; }
 
-  .summary-card {
-    padding: 14px 16px; border-radius: 10px; margin-bottom: 14px;
-    background: var(--panel); border: 1px solid var(--border); box-shadow: var(--shadow);
-  }
+  .summary-card { padding: 14px 16px; border-radius: 10px; margin-bottom: 14px; background: var(--panel); border: 1px solid var(--border); box-shadow: var(--shadow); }
   .summary-card h2 { margin: 0 0 6px; font-size: 16px; font-weight: 600; }
   .summary-card .pace { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; margin-bottom: 8px; }
   .summary-card .tradeoff { font-size: 13px; color: var(--muted); margin: 6px 0; }
   .summary-card .stats { display: flex; gap: 12px; font-size: 12px; margin-top: 8px; flex-wrap: wrap; }
-  .summary-card .stat { padding: 3px 8px; background: #f3f4f6; border-radius: 4px; color: var(--text); }
+  .summary-card .stat { padding: 3px 8px; background: #f3f4f6; border-radius: 4px; }
   .summary-card .recommend { margin-top: 8px; padding: 6px 10px; background: #fef9c3; border-radius: 6px; font-size: 12px; color: #713f12; }
 
-  .day {
-    margin-top: 14px;
-    padding: 12px 14px;
-    background: var(--panel);
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--day1);
-  }
+  .day { margin-top: 14px; padding: 12px 14px; background: var(--panel); border-radius: 10px; border: 1px solid var(--border); border-left: 4px solid var(--day1); }
   .day[data-day="2"] { border-left-color: var(--day2); }
   .day[data-day="3"] { border-left-color: var(--day3); }
   .day-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
   .day-header .label { font-weight: 600; font-size: 14px; }
   .day-header .meta { font-size: 12px; color: var(--muted); }
   .stops { margin: 0; padding: 0; list-style: none; }
-  .stop {
-    display: flex; gap: 10px; padding: 6px 6px; border-radius: 6px; cursor: pointer;
-    transition: background .12s;
-  }
-  .stop:hover { background: #f3f4f6; }
+  .stop { display: flex; gap: 10px; padding: 8px 6px; border-radius: 6px; cursor: pointer; transition: background .12s; border-bottom: 1px solid #f3f4f6; }
+  .stop:last-child { border-bottom: none; }
+  .stop:hover { background: #f9fafb; }
   .stop.highlighted { background: #fef3c7; }
-  .stop .dot {
-    flex: 0 0 20px; height: 20px; line-height: 20px; text-align: center;
-    border-radius: 10px; color: white; font-size: 11px; font-weight: 600;
-    background: var(--day1); margin-top: 2px;
-  }
+  .stop .dot { flex: 0 0 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 11px; color: white; font-size: 11px; font-weight: 600; background: var(--day1); margin-top: 2px; }
   .day[data-day="2"] .stop .dot { background: var(--day2); }
   .day[data-day="3"] .stop .dot { background: var(--day3); }
   .stop .stop-content { flex: 1; min-width: 0; }
   .stop .stop-time { font-size: 11px; color: var(--muted); font-weight: 500; }
-  .stop .stop-name { font-size: 13px; font-weight: 500; color: var(--text); }
-  .stop .stop-note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .stop .stop-name { font-size: 13px; font-weight: 600; color: var(--text); margin-top: 1px; }
+  .stop .stop-marker { font-size: 11px; }
+  .stop .stop-desc { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+  .stop .stop-note { font-size: 11.5px; color: #4b5563; margin-top: 3px; padding: 2px 6px; background: #f3f4f6; border-radius: 3px; display: inline-block; }
   .stop .tag { display: inline-block; font-size: 10px; padding: 1px 5px; border-radius: 3px; margin-right: 4px; vertical-align: middle; }
   .tag.must { background: #fee2e2; color: #b91c1c; }
-  .tag.book { background: #dbeafe; color: #1e40af; }
   .tag.eat { background: #ecfccb; color: #4d7c0f; }
   .tag.sleep { background: #ede9fe; color: #6d28d9; }
   .tag.activity { background: #fef3c7; color: #92400e; }
   .tag.drive { background: #f3f4f6; color: #6b7280; }
 
-  /* Leaflet customization */
-  .marker-num {
-    background: var(--day1); color: white; width: 28px !important; height: 28px !important;
-    border-radius: 50%; text-align: center; line-height: 28px; font-weight: 700; font-size: 13px;
-    border: 2.5px solid white; box-shadow: 0 2px 6px rgba(0,0,0,.3);
-  }
+  .marker-num { background: var(--day1); color: white; width: 28px !important; height: 28px !important; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 700; font-size: 13px; border: 2.5px solid white; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
   .marker-num.day2 { background: var(--day2); }
   .marker-num.day3 { background: var(--day3); }
   .marker-num.origin { background: #1f2937; border-radius: 6px; }
-  .leaflet-popup-content { font-family: inherit; font-size: 13px; }
-  .leaflet-popup-content b { display: block; margin-bottom: 4px; }
-  .leaflet-popup-content .pop-meta { color: var(--muted); font-size: 11px; }
+  .leaflet-popup-content { font-family: inherit; font-size: 12.5px; }
+  .leaflet-popup-content b { display: block; margin-bottom: 3px; font-size: 13px; }
+  .leaflet-popup-content .pop-meta { color: var(--muted); font-size: 10px; margin-top: 2px; }
+  .leaflet-popup-content .pop-desc { color: #374151; margin-top: 3px; }
 
-  .legend {
-    position: absolute; bottom: 16px; right: 16px; z-index: 999;
-    background: var(--panel); padding: 8px 12px; border-radius: 8px; box-shadow: var(--shadow);
-    font-size: 12px; border: 1px solid var(--border);
-  }
+  .legend { position: absolute; bottom: 16px; right: 16px; z-index: 999; background: var(--panel); padding: 8px 12px; border-radius: 8px; box-shadow: var(--shadow); font-size: 12px; border: 1px solid var(--border); }
   .legend .row { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
   .legend .swatch { width: 14px; height: 14px; border-radius: 50%; }
 
-  .compare-bar {
-    padding: 10px 24px; background: #f9fafb; border-bottom: 1px solid var(--border);
-    font-size: 12px; color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap;
-  }
+  .compare-bar { padding: 10px 24px; background: #f9fafb; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap; }
   .compare-bar b { color: var(--text); font-weight: 600; }
 </style>
 </head>
 <body>
 
-<div style="padding:8px 24px;background:#f9fafb;border-bottom:1px solid #e5e7eb;font-size:12px;color:#6b7280">
-  <a href="/garden/" style="color:#6b7280;text-decoration:none">🌱 Garden</a> &nbsp;›&nbsp;
-  <a href="../../" style="color:#6b7280;text-decoration:none">Trips</a> &nbsp;›&nbsp;
-  <a href="./" style="color:#6b7280;text-decoration:none">Mendocino</a> &nbsp;›&nbsp;
+<div class="breadcrumb">
+  <a href="/garden/">🌱 Garden</a> &nbsp;›&nbsp;
+  <a href="../../">Trips</a> &nbsp;›&nbsp;
+  <a href="./">Mendocino</a> &nbsp;›&nbsp;
   <span style="color:#1a1a1a;font-weight:500">方案对比</span>
-  <span style="float:right">📋 <a href="picker.html" style="color:#6b7280">Picker</a></span>
+  <span style="float:right">📋 <a href="picker.html">Picker</a></span>
 </div>
 
 <header>
@@ -167,7 +112,6 @@
   <span>📍 起点 / 终点: <b>San Jose</b></span>
   <span>🚗 来回总里程: <b>~520 mi</b></span>
   <span>⏱️ Day 3 必须 <b>20:00 到家</b></span>
-  <span>🏠 住宿: <b>2 晚</b></span>
 </div>
 
 <nav class="plan-tabs" id="planTabs">
@@ -191,65 +135,66 @@
 </main>
 
 <script>
-// ===== Location database =====
-const SJ = { lat: 37.3382, lon: -121.8863, name: "San Jose (家)" };
+// ============================================================
+// LOC database — every entry MUST have `desc` (rule from html-pages-rules.md)
+// Same shape as picker INVENTORY: {name, coords, desc, type, marker, src}
+// ============================================================
+
+const SJ = { name: "San Jose (家)", coords: [37.3382, -121.8863], desc: "出发与回家点", type: "drive" };
 
 const LOC = {
-  // Sonoma County
-  sonomaPlaza:    { lat: 38.2933, lon: -122.4584, name: "Sonoma Plaza" },
-  sonomaOverlook: { lat: 38.3050, lon: -122.4633, name: "Sonoma Overlook Trail" },
-  healdsburg:     { lat: 38.6105, lon: -122.8694, name: "Healdsburg Plaza" },
-  santaRosa:      { lat: 38.4404, lon: -122.7141, name: "Santa Rosa Hyatt" },
-  schulz:         { lat: 38.4424, lon: -122.7395, name: "Schulz 史努比博物馆" },
-  sebastopol:     { lat: 38.4021, lon: -122.8239, name: "The Barlow (Sebastopol)" },
-  girlAndFig:     { lat: 38.2942, lon: -122.4575, name: "the girl & the fig" },
-  costeaux:       { lat: 38.6107, lon: -122.8702, name: "Costeaux Bakery" },
-  brassRabbit:    { lat: 38.6118, lon: -122.8693, name: "Brass Rabbit" },
-  birdBottle:     { lat: 38.4498, lon: -122.7115, name: "Bird & the Bottle" },
-  scribe:         { lat: 38.2776, lon: -122.4351, name: "Scribe Winery" },
-  macrostie:      { lat: 38.5919, lon: -122.8525, name: "MacRostie Winery" },
-  rockerOyster:   { lat: 38.3211, lon: -122.9276, name: "Rocker Oysterfellers" },
-  // Coast
-  bodegaBay:      { lat: 38.3333, lon: -123.0481, name: "Bodega Bay" },
-  bodegaHead:     { lat: 38.3036, lon: -123.0558, name: "Bodega Head 步道" },
-  spudPoint:      { lat: 38.3294, lon: -123.0567, name: "Spud Point Crab Co." },
-  goatRock:       { lat: 38.4517, lon: -123.1306, name: "Goat Rock Beach (Jenner)" },
-  shellBeach:     { lat: 38.4181, lon: -123.0974, name: "Shell Beach (tide pools)" },
-  terrapin:       { lat: 38.3340, lon: -123.0470, name: "Terrapin Creek Cafe" },
-  bodegaLodge:    { lat: 38.3293, lon: -123.0490, name: "Bodega Bay Lodge" },
-  fortRoss:       { lat: 38.5183, lon: -123.2454, name: "Fort Ross Vineyards" },
-  // Anderson Valley / 128
-  pennyroyal:     { lat: 39.0089, lon: -123.3669, name: "Pennyroyal Farm" },
-  hendyWoods:     { lat: 39.0739, lon: -123.4691, name: "Hendy Woods Redwoods" },
-  husch:          { lat: 39.0890, lon: -123.5350, name: "Husch Vineyards" },
-  // Mendocino area
-  harborHouse:    { lat: 39.1306, lon: -123.7186, name: "Harbor House Inn ⭐⭐ (米其林)" },
-  scpLodge:       { lat: 39.2272, lon: -123.7689, name: "SCP Mendocino Coast Lodge" },
-  littleRiver:    { lat: 39.2723, lon: -123.7869, name: "Little River" },
-  vanDamme:       { lat: 39.2788, lon: -123.7893, name: "Van Damme SP" },
-  mendoTown:      { lat: 39.3076, lon: -123.7995, name: "Mendocino Downtown" },
-  mendoArch:      { lat: 39.3060, lon: -123.8050, name: "Mendocino Arch" },
-  headlands:      { lat: 39.3088, lon: -123.8095, name: "Mendocino Headlands" },
-  galleryBook:    { lat: 39.3068, lon: -123.7993, name: "Gallery Bookshop" },
-  luna:           { lat: 39.3072, lon: -123.7991, name: "Luna Trattoria" },
-  harvestMkt:     { lat: 39.3070, lon: -123.7984, name: "Harvest Market" },
-  cafeBeau:       { lat: 39.3046, lon: -123.7960, name: "Cafe Beaujolais" },
-  russianGulch:   { lat: 39.3299, lon: -123.8129, name: "Russian Gulch SP" },
-  pointCabrillo:  { lat: 39.3489, lon: -123.8190, name: "Point Cabrillo Lighthouse" },
-  // Fort Bragg
-  botanicalGdn:   { lat: 39.3915, lon: -123.8049, name: "Mendocino Coast Botanical Gardens ⭐⭐" },
-  princessSea:    { lat: 39.4259, lon: -123.8061, name: "Princess Seafood (Noyo)" },
-  noyoHarbor:     { lat: 39.4258, lon: -123.8055, name: "Noyo Harbor" },
-  seaPalCove:     { lat: 39.4255, lon: -123.8050, name: "Sea Pal Cove (fish & chips)" },
-  skunkTrain:     { lat: 39.4467, lon: -123.8063, name: "Skunk Train Depot" },
-  mayanFusion:    { lat: 39.4456, lon: -123.8064, name: "Mayan Fusion" },
-  cowlicks:       { lat: 39.4456, lon: -123.8042, name: "Cowlick's 蘑菇冰淇淋" },
-  glassBeach:     { lat: 39.4528, lon: -123.8158, name: "Glass Beach" },
-  pacificStar:    { lat: 39.5379, lon: -123.7796, name: "Pacific Star Winery (悬崖)" },
-  glenBlairBar:   { lat: 39.4470, lon: -123.6900, name: "Glen Blair Bar (森林酒吧)" },
-  // Hwy 1 south
-  pointArena:     { lat: 38.9088, lon: -123.6920, name: "Point Arena" },
-  pointArenaLH:   { lat: 38.9551, lon: -123.7405, name: "Point Arena Lighthouse" },
+  // === Sonoma County ===
+  sonomaPlaza:    { name: "Sonoma Plaza", coords: [38.2933, -122.4584], desc: "加州最大 town plaza,草坪 + 历史建筑,可坐草坪发呆", type: "sight", marker: "⭐", src: "小红书" },
+  sonomaOverlook: { name: "Sonoma Overlook Trail", coords: [38.305, -122.4633], desc: "落日时分爬,山脊上望远,2.6 mi 来回中等", type: "sight", marker: "⭐", src: "小红书" },
+  healdsburg:     { name: "Healdsburg Plaza", coords: [38.6105, -122.8694], desc: "比 Sonoma Plaza 更精致,周边都是 tasting room", type: "sight", marker: "🆕" },
+  santaRosa:      { name: "Santa Rosa Hyatt 酒店", coords: [38.4404, -122.7141], desc: "Hyatt Regency Sonoma Wine Country,博主用 C4 房券", type: "sleep", marker: "⭐", src: "小红书" },
+  schulz:         { name: "Schulz Museum (史努比)", coords: [38.4424, -122.7395], desc: "Charles M. Schulz Museum,Mendocino 路上顺路打卡", type: "sight", marker: "⭐", src: "小红书" },
+  girlAndFig:     { name: "the girl & the fig", coords: [38.2942, -122.4575], desc: "Sonoma Plaza,法式南欧菜,Sonoma 经典", type: "eat", marker: "🆕" },
+  costeaux:       { name: "Costeaux French Bakery", coords: [38.6107, -122.8702], desc: "Healdsburg,早餐/三明治,本地老字号", type: "eat", marker: "🆕" },
+  brassRabbit:    { name: "Brass Rabbit", coords: [38.6118, -122.8693], desc: "Healdsburg,性价比 New American,需预约", type: "eat", marker: "🆕" },
+  birdBottle:     { name: "Bird & the Bottle", coords: [38.4498, -122.7115], desc: "Santa Rosa,当地热门 Asian-American fusion", type: "eat", marker: "🆕" },
+  scribe:         { name: "Scribe Winery", coords: [38.2776, -122.4351], desc: "Sonoma 网红西班牙别墅风酒庄,需预约", type: "activity", marker: "🆕" },
+  macrostie:      { name: "MacRostie Winery", coords: [38.5919, -122.8525], desc: "Healdsburg,Pinot/Chardonnay,view 极好露台 tasting", type: "activity", marker: "🆕" },
+  rockerOyster:   { name: "Rocker Oysterfellers", coords: [38.3211, -122.9276], desc: "Valley Ford 路上,生蚝 + 小镇氛围,Reddit 强推", type: "eat", marker: "🆕🔥", src: "Reddit" },
+
+  // === Bodega Bay & Sonoma Coast ===
+  bodegaBay:      { name: "Bodega Bay", coords: [38.3333, -123.0481], desc: "Sonoma Coast 沿海小镇,海鲜 + 海岸徒步", type: "drive" },
+  bodegaHead:     { name: "Bodega Head 海岸步道", coords: [38.3036, -123.0558], desc: "看海鸟、海豹,内湾沉静外海激荡", type: "sight", marker: "⭐", src: "小红书" },
+  spudPoint:      { name: "Spud Point Crab Co.", coords: [38.3294, -123.0567], desc: "Bodega Bay 头号必去,crab sandwich + 招牌 chowder,11am 前到", type: "eat", marker: "⭐⭐", src: "小红书+Reddit" },
+  goatRock:       { name: "Goat Rock Beach (Jenner)", coords: [38.4517, -123.1306], desc: "Russian River 入海口,海豹聚集,Hwy 1 必停", type: "sight", marker: "🆕🔥", src: "Reddit" },
+  shellBeach:     { name: "Shell Beach (tide pools)", coords: [38.4181, -123.0974], desc: "Sonoma Coast SP,tide pool 圣地,需查潮汐表", type: "sight", marker: "🆕🔥", src: "Reddit" },
+  terrapin:       { name: "Terrapin Creek Cafe", coords: [38.3340, -123.0470], desc: "Bodega 唯一精致正餐,米其林 Bib", type: "eat", marker: "🆕" },
+  bodegaLodge:    { name: "Bodega Bay Lodge", coords: [38.3293, -123.0490], desc: "Bodega Bay 最高端海景房", type: "sleep", marker: "🆕" },
+  fortRoss:       { name: "Fort Ross Vineyards", coords: [38.5183, -123.2454], desc: "Hwy 1 沿海酒庄,view 一流", type: "activity", marker: "🆕" },
+
+  // === Anderson Valley / Hwy 128 ===
+  pennyroyal:     { name: "Pennyroyal Farm", coords: [39.0089, -123.3669], desc: "Boonville,山羊奶酪 + 葡萄酒 + 农场动物,1h 必访", type: "activity", marker: "🆕" },
+  hendyWoods:     { name: "Hendy Woods Redwoods", coords: [39.0739, -123.4691], desc: "Hwy 128 Philo,Old-growth redwood 短走,Reddit 强推", type: "sight", marker: "🆕🔥", src: "Reddit" },
+  husch:          { name: "Husch Vineyards", coords: [39.0890, -123.5350], desc: "Anderson Valley 老牌,免费 tasting (罕见)", type: "activity", marker: "🆕" },
+
+  // === Mendocino & Fort Bragg ===
+  harborHouse:    { name: "Harbor House Inn (Elk)", coords: [39.1306, -123.7186], desc: "🌟 米其林二星,海崖花园直达 cove,lunch $150 dinner $350,Tue/Wed 闭", type: "eat", marker: "🆕🔥⭐⭐", src: "Reddit+官网" },
+  scpLodge:       { name: "SCP Mendocino Coast Lodge", coords: [39.2272, -123.7689], desc: "Albion 海景酒店,阳台 + 火炉,博主强推 12 号房,Memorial Day 估 $400-600+", type: "sleep", marker: "⭐⭐", src: "小红书" },
+  littleRiver:    { name: "Little River", coords: [39.2723, -123.7869], desc: "离 SCP Lodge 不远,浮潜或停下看景", type: "sight", marker: "⭐" },
+  mendoTown:      { name: "Mendocino Downtown", coords: [39.3076, -123.7995], desc: "维多利亚风海边小镇 downtown 区域", type: "drive" },
+  mendoArch:      { name: "Mendocino Arch (网红拱门)", coords: [39.3060, -123.8050], desc: "海岸天然拱门,上午水最蓝,出片", type: "sight", marker: "⭐", src: "小红书" },
+  headlands:      { name: "Mendocino Headlands", coords: [39.3088, -123.8095], desc: "小镇旁悬崖步道公园,免费,傍晚饭前散步绝佳", type: "sight", marker: "⭐" },
+  galleryBook:    { name: "Gallery Bookshop", coords: [39.3068, -123.7993], desc: "海边书店,店主健谈,店猫 Catsby", type: "sight", marker: "⭐" },
+  luna:           { name: "Luna Trattoria", coords: [39.3072, -123.7991], desc: "意大利菜 + 驻唱,必预约 garden 位,周一闭店", type: "eat", marker: "⭐", src: "小红书+官网" },
+  harvestMkt:     { name: "Harvest Market", coords: [39.3070, -123.7984], desc: "Mendocino downtown 农场超市,可买本地霞多丽", type: "eat", marker: "⭐" },
+  cafeBeau:       { name: "Cafe Beaujolais", coords: [39.3046, -123.7960], desc: "Mendocino 小镇精致正餐,花园环境", type: "eat", marker: "🆕" },
+  goodlife:       { name: "Goodlife Cafe & Bakery", coords: [39.3058, -123.7978], desc: "Mendocino 早餐 / pastry", type: "eat", marker: "🆕" },
+
+  // === Fort Bragg ===
+  botanicalGdn:   { name: "Mendocino Coast Botanical Gardens", coords: [39.3915, -123.8049], desc: "本次行程头号景点 (Reddit + 小红书共识),花园直达大海,2-3h,11am 前到避人潮", type: "sight", marker: "⭐⭐", src: "小红书+Reddit+官网" },
+  glassBeach:     { name: "Glass Beach", coords: [39.4528, -123.8158], desc: "彩色玻璃海滩 (玻璃已少),现在主要看海豹,捡玻璃违法", type: "sight", marker: "⭐⚠️" },
+  princessSea:    { name: "Princess Seafood", coords: [39.4259, -123.8061], desc: "Noyo Harbor,全女性渔船,Reddit 多人强推", type: "eat", marker: "🆕🔥", src: "Reddit" },
+  skunkTrain:     { name: "Skunk Train Depot", coords: [39.4467, -123.8063], desc: "Rail bikes 在山里铁轨上骑车 ~2h $200/双人,需预约", type: "activity", marker: "⭐", src: "小红书+官网" },
+  mayanFusion:    { name: "Mayan Fusion", coords: [39.4456, -123.8064], desc: "Fort Bragg 墨西哥菜,价格便宜,紧邻 Skunk Train", type: "eat", marker: "⭐" },
+  pacificStar:    { name: "Pacific Star Winery", coords: [39.5379, -123.7796], desc: "Fort Bragg 北海岸悬崖酒庄,绝景免费 tasting,Memorial Day 闭店", type: "activity", marker: "🆕🔥", src: "Reddit+官网" },
+
+  // === Hwy 1 South ===
+  pointArena:     { name: "Point Arena", coords: [38.9088, -123.6920], desc: "Hwy 1 沿途小镇,Point Arena Pizza 海湾露台 + 灯塔", type: "sight", marker: "🆕", src: "Reddit" },
 };
 
 // ===== Plans =====
@@ -258,45 +203,42 @@ const PLANS = {
     name: "方案 A: Sonoma + Mendocino",
     pace: "舒适",
     paceColor: "#16a34a",
-    tradeoff: "取了 Sonoma 酒庄 + Mendocino 核心；舍了 Bodega Bay 海岸线",
+    tradeoff: "取了 Sonoma 酒庄 + Mendocino 核心;舍了 Bodega Bay 海岸线",
     recommend: "✅ 最稳的选择 — 每天开车 ≤ 2.5h,Day 3 走 128 不会迟到",
     sleep: "Day 1: Healdsburg · Day 2: Mendocino (SCP)",
     days: [
-      {
-        day: 1, label: "Day 1 · 5/23 (周六)", meta: "SJ → Sonoma → Healdsburg",
+      { day: 1, label: "Day 1 · 5/23 (周六)", meta: "SJ → Sonoma → Healdsburg",
         stops: [
-          { time: "9:00", loc: "SJ",            tag: "drive", note: "出发,~2h" , special: "origin"},
-          { time: "11:00", loc: "sonomaPlaza",  tag: "activity" },
-          { time: "12:00", loc: "girlAndFig",   tag: "eat", note: "午餐" },
-          { time: "14:00", loc: "scribe",       tag: "activity", note: "酒庄 tasting (需预约)" },
+          { time: "9:00", loc: "SJ", tag: "drive", note: "出发,~2h", special: "origin" },
+          { time: "11:00", loc: "sonomaPlaza", tag: "activity" },
+          { time: "12:00", loc: "girlAndFig", tag: "eat", note: "午餐" },
+          { time: "14:00", loc: "scribe", tag: "activity", note: "酒庄 tasting (需预约)" },
           { time: "16:30", loc: "sonomaOverlook", tag: "activity", note: "落日徒步 2.6 mi" },
-          { time: "18:30", loc: "healdsburg",   tag: "activity", note: "Plaza 转转" },
-          { time: "19:30", loc: "brassRabbit",  tag: "eat", note: "晚餐 (需预约)" },
-          { time: "夜宿", loc: "healdsburg",    tag: "sleep", note: "h2hotel / Madrona" },
+          { time: "18:30", loc: "healdsburg", tag: "activity", note: "Plaza 转转" },
+          { time: "19:30", loc: "brassRabbit", tag: "eat", note: "晚餐 (需预约)" },
+          { time: "夜宿", loc: "healdsburg", tag: "sleep", note: "h2hotel / Madrona" },
         ]
       },
-      {
-        day: 2, label: "Day 2 · 5/24 (周日)", meta: "Healdsburg → Anderson Valley → Mendocino (~2h20)",
+      { day: 2, label: "Day 2 · 5/24 (周日)", meta: "Healdsburg → Anderson Valley → Mendocino (~2h20)",
         stops: [
-          { time: "8:30", loc: "costeaux",     tag: "eat", note: "早餐" },
-          { time: "11:00", loc: "pennyroyal",  tag: "activity", note: "山羊奶酪 + tasting" },
+          { time: "8:30", loc: "costeaux", tag: "eat", note: "早餐" },
+          { time: "11:00", loc: "pennyroyal", tag: "activity", note: "山羊奶酪 + tasting" },
           { time: "13:00", loc: "mayanFusion", tag: "eat", note: "午餐" },
-          { time: "14:30", loc: "scpLodge",    tag: "sleep", note: "入住,12 号房 ⭐" },
-          { time: "16:00", loc: "headlands",   tag: "activity", note: "悬崖步道 + Arch" },
-          { time: "17:00", loc: "galleryBook", tag: "activity", note: "海边书店 + 店猫 Catsby" },
-          { time: "19:00", loc: "luna",        tag: "must eat", note: "Luna Trattoria garden 位 ⚠️必预约" },
-          { time: "夜宿", loc: "scpLodge",     tag: "sleep" },
+          { time: "14:30", loc: "scpLodge", tag: "sleep", note: "入住,12 号房 ⭐" },
+          { time: "16:00", loc: "headlands", tag: "activity", note: "悬崖步道 + Arch" },
+          { time: "17:00", loc: "galleryBook", tag: "activity" },
+          { time: "19:00", loc: "luna", tag: "must eat", note: "Luna garden 位 ⚠️ 必预约" },
+          { time: "夜宿", loc: "scpLodge", tag: "sleep" },
         ]
       },
-      {
-        day: 3, label: "Day 3 · 5/25 (周一,Memorial Day)", meta: "Mendocino → Botanical Gdns → 128 → SJ (~5h)",
+      { day: 3, label: "Day 3 · 5/25 (周一,Memorial Day)", meta: "Mendocino → Botanical Gdns → 128 → SJ (~5h)",
         stops: [
-          { time: "8:30", loc: "scpLodge",     tag: "eat", note: "酒店 brunch" },
-          { time: "10:00", loc: "botanicalGdn", tag: "must activity", note: "核心,2.5h,海边 trail ⭐⭐" },
-          { time: "12:30", loc: "glassBeach",  tag: "activity", note: "快速看海豹 (玻璃已少)" },
-          { time: "13:30", loc: "husch",       tag: "activity", note: "Anderson Valley tasting (免费)" },
-          { time: "14:30", loc: "pennyroyal",  tag: "eat", note: "简餐" },
-          { time: "20:00", loc: "SJ",          tag: "drive", note: "✅ 到家", special: "origin" },
+          { time: "8:30", loc: "scpLodge", tag: "eat", note: "酒店 brunch" },
+          { time: "10:00", loc: "botanicalGdn", tag: "must activity", note: "核心,2.5h ⭐⭐" },
+          { time: "12:30", loc: "glassBeach", tag: "activity", note: "快速看海豹" },
+          { time: "13:30", loc: "husch", tag: "activity", note: "Anderson Valley tasting 免费" },
+          { time: "14:30", loc: "pennyroyal", tag: "eat", note: "简餐" },
+          { time: "20:00", loc: "SJ", tag: "drive", note: "✅ 到家", special: "origin" },
         ]
       }
     ]
@@ -306,40 +248,37 @@ const PLANS = {
     pace: "中等 (Hwy 1 弯多)",
     paceColor: "#0891b2",
     tradeoff: "取了 Bodega Bay + 完整海岸线;舍了 Sonoma 酒庄。Hwy 1 北上 ~3h 慢弯",
-    recommend: "🌊 适合海岸控 + 想吃 Spud Point + 喜欢看海。⚠️ 长周末 Hwy 1 会被堵",
+    recommend: "🌊 适合海岸控 + 想吃 Spud Point。⚠️ 长周末 Hwy 1 会被堵",
     sleep: "Day 1: Bodega Bay · Day 2: Mendocino",
     days: [
-      {
-        day: 1, label: "Day 1 · 5/23 (周六)", meta: "SJ → Bodega Bay (~2h45)",
+      { day: 1, label: "Day 1 · 5/23 (周六)", meta: "SJ → Bodega Bay (~2h45)",
         stops: [
-          { time: "9:00",  loc: "SJ",          tag: "drive", note: "出发", special: "origin" },
-          { time: "12:00", loc: "spudPoint",   tag: "must eat", note: "crab sandwich + chowder ⭐⭐" },
-          { time: "14:00", loc: "bodegaHead",  tag: "activity", note: "海岸徒步 + 看海豹" },
+          { time: "9:00", loc: "SJ", tag: "drive", note: "出发", special: "origin" },
+          { time: "12:00", loc: "spudPoint", tag: "must eat", note: "crab sandwich + chowder ⭐⭐" },
+          { time: "14:00", loc: "bodegaHead", tag: "activity", note: "海岸徒步 + 看海豹" },
           { time: "16:00", loc: "bodegaLodge", tag: "sleep", note: "入住海景房" },
-          { time: "19:00", loc: "terrapin",    tag: "eat", note: "晚餐 (米其林 Bib)" },
-          { time: "夜宿",   loc: "bodegaLodge", tag: "sleep" },
+          { time: "19:00", loc: "terrapin", tag: "eat", note: "晚餐 (米其林 Bib)" },
+          { time: "夜宿", loc: "bodegaLodge", tag: "sleep" },
         ]
       },
-      {
-        day: 2, label: "Day 2 · 5/24 (周日)", meta: "Hwy 1 海岸北上 → Mendocino (~3h)",
+      { day: 2, label: "Day 2 · 5/24 (周日)", meta: "Hwy 1 海岸北上 → Mendocino (~3h)",
         stops: [
-          { time: "9:00",  loc: "bodegaLodge", tag: "eat", note: "酒店早餐" },
-          { time: "10:30", loc: "goatRock",    tag: "activity", note: "Russian River 入海口" },
-          { time: "12:00", loc: "fortRoss",    tag: "activity", note: "海崖酒庄 (可选)" },
-          { time: "14:30", loc: "scpLodge",    tag: "sleep", note: "入住" },
-          { time: "16:00", loc: "headlands",   tag: "activity", note: "悬崖步道" },
+          { time: "9:00", loc: "bodegaLodge", tag: "eat", note: "酒店早餐" },
+          { time: "10:30", loc: "goatRock", tag: "activity", note: "Russian River 入海口" },
+          { time: "12:00", loc: "fortRoss", tag: "activity", note: "海崖酒庄 (可选)" },
+          { time: "14:30", loc: "scpLodge", tag: "sleep", note: "入住" },
+          { time: "16:00", loc: "headlands", tag: "activity", note: "悬崖步道" },
           { time: "17:00", loc: "galleryBook", tag: "activity" },
-          { time: "19:00", loc: "luna",        tag: "must eat", note: "Luna Trattoria" },
-          { time: "夜宿",   loc: "scpLodge",    tag: "sleep" },
+          { time: "19:00", loc: "luna", tag: "must eat", note: "Luna Trattoria" },
+          { time: "夜宿", loc: "scpLodge", tag: "sleep" },
         ]
       },
-      {
-        day: 3, label: "Day 3 · 5/25 (周一)", meta: "Mendocino → 128 → SJ (~4h30)",
+      { day: 3, label: "Day 3 · 5/25 (周一)", meta: "Mendocino → 128 → SJ (~4h30)",
         stops: [
-          { time: "8:30",  loc: "scpLodge",    tag: "eat", note: "brunch" },
+          { time: "8:30", loc: "scpLodge", tag: "eat", note: "brunch" },
           { time: "10:00", loc: "botanicalGdn", tag: "must activity", note: "Botanical Gardens 2-2.5h" },
-          { time: "13:00", loc: "pennyroyal",  tag: "eat", note: "午餐 + tasting" },
-          { time: "20:00", loc: "SJ",          tag: "drive", note: "✅ 到家", special: "origin" },
+          { time: "13:00", loc: "pennyroyal", tag: "eat", note: "午餐 + tasting" },
+          { time: "20:00", loc: "SJ", tag: "drive", note: "✅ 到家", special: "origin" },
         ]
       }
     ]
@@ -349,152 +288,133 @@ const PLANS = {
     pace: "紧凑 (Day 2 满)",
     paceColor: "#d97706",
     tradeoff: "把 Skunk Train Rail Bikes 作为亮点;牺牲 Sonoma 慢游。Day 2 早起",
-    recommend: "🚂 如果你是火车控/铁道迷必选。否则 Botanical Gardens > Rail Bikes 性价比",
+    recommend: "🚂 火车控/铁道迷必选。否则 Botanical Gardens > Rail Bikes 性价比",
     sleep: "Day 1: Santa Rosa (Hyatt 性价比) · Day 2: Mendocino",
     days: [
-      {
-        day: 1, label: "Day 1 · 5/23 (周六)", meta: "SJ → Santa Rosa (~2h15)",
+      { day: 1, label: "Day 1 · 5/23 (周六)", meta: "SJ → Santa Rosa (~2h15)",
         stops: [
-          { time: "9:00",  loc: "SJ",         tag: "drive", note: "出发", special: "origin" },
+          { time: "9:00", loc: "SJ", tag: "drive", note: "出发", special: "origin" },
           { time: "12:00", loc: "birdBottle", tag: "eat", note: "午餐" },
-          { time: "14:00", loc: "schulz",     tag: "activity", note: "史努比博物馆 1.5h" },
+          { time: "14:00", loc: "schulz", tag: "activity", note: "史努比博物馆 1.5h" },
           { time: "16:30", loc: "healdsburg", tag: "activity", note: "Plaza + tasting room" },
-          { time: "19:00", loc: "santaRosa",  tag: "sleep", note: "Hyatt 入住" },
-          { time: "夜宿",   loc: "santaRosa",  tag: "sleep" },
+          { time: "19:00", loc: "santaRosa", tag: "sleep", note: "Hyatt 入住" },
+          { time: "夜宿", loc: "santaRosa", tag: "sleep" },
         ]
       },
-      {
-        day: 2, label: "Day 2 · 5/24 (周日)", meta: "Santa Rosa → Fort Bragg → Mendocino (~3h)",
+      { day: 2, label: "Day 2 · 5/24 (周日)", meta: "Santa Rosa → Fort Bragg → Mendocino (~3h)",
         stops: [
-          { time: "7:30",  loc: "santaRosa",   tag: "drive", note: "早起出发!" },
-          { time: "10:30", loc: "skunkTrain",  tag: "must activity", note: "Rail Bikes 2h ⚠️必预约" },
+          { time: "7:30", loc: "santaRosa", tag: "drive", note: "早起出发!" },
+          { time: "10:30", loc: "skunkTrain", tag: "must activity", note: "Rail Bikes 2h ⚠️ 必预约" },
           { time: "12:30", loc: "mayanFusion", tag: "eat", note: "午餐" },
-          { time: "14:00", loc: "glassBeach",  tag: "activity" },
+          { time: "14:00", loc: "glassBeach", tag: "activity" },
           { time: "15:30", loc: "botanicalGdn", tag: "must activity", note: "1.5-2h" },
-          { time: "17:30", loc: "scpLodge",    tag: "sleep", note: "入住" },
-          { time: "19:30", loc: "luna",        tag: "must eat", note: "Luna" },
-          { time: "夜宿",   loc: "scpLodge",    tag: "sleep" },
+          { time: "17:30", loc: "scpLodge", tag: "sleep", note: "入住" },
+          { time: "19:30", loc: "luna", tag: "must eat", note: "Luna" },
+          { time: "夜宿", loc: "scpLodge", tag: "sleep" },
         ]
       },
-      {
-        day: 3, label: "Day 3 · 5/25 (周一)", meta: "Mendocino → 128 → SJ (~4h30)",
+      { day: 3, label: "Day 3 · 5/25 (周一)", meta: "Mendocino → 128 → SJ (~4h30)",
         stops: [
-          { time: "8:30",  loc: "cafeBeau",    tag: "eat", note: "早餐" },
-          { time: "10:00", loc: "headlands",   tag: "activity", note: "海边散步" },
-          { time: "11:30", loc: "pennyroyal",  tag: "eat", note: "Anderson Valley 午餐" },
-          { time: "20:00", loc: "SJ",          tag: "drive", note: "✅ 到家", special: "origin" },
+          { time: "8:30", loc: "cafeBeau", tag: "eat", note: "早餐" },
+          { time: "10:00", loc: "headlands", tag: "activity", note: "海边散步" },
+          { time: "11:30", loc: "pennyroyal", tag: "eat", note: "Anderson Valley 午餐" },
+          { time: "20:00", loc: "SJ", tag: "drive", note: "✅ 到家", special: "origin" },
         ]
       }
     ]
   },
   D: {
-    name: "方案 D: Loop 路线 + 米其林 Lunch ⭐ NEW",
+    name: "方案 D: Loop + 米其林 Lunch ⭐ NEW",
     pace: "中等",
     paceColor: "#db2777",
-    tradeoff: "去 128 / 回 Hwy 1 (Reddit 共识 loop);取了 Harbor House 米其林 lunch + Pacific Star 悬崖酒庄",
-    recommend: "🔥 体验密度最高 — 米其林 lunch + 悬崖酒庄 + 红木森林 + loop 风景。Day 3 时间稍紧",
+    tradeoff: "去 128 / 回 Hwy 1 (Reddit 共识 loop);Harbor House 米其林 lunch + Pacific Star 悬崖酒庄",
+    recommend: "🔥 体验密度最高 — 米其林 + 悬崖酒庄 + 红木森林 + loop 风景",
     sleep: "Day 1: Healdsburg · Day 2: Mendocino",
     days: [
-      {
-        day: 1, label: "Day 1 · 5/23 (周六)", meta: "SJ → Healdsburg (~2h30)",
+      { day: 1, label: "Day 1 · 5/23 (周六)", meta: "SJ → Healdsburg (~2h30)",
         stops: [
-          { time: "9:00",  loc: "SJ",            tag: "drive", note: "出发", special: "origin" },
-          { time: "11:30", loc: "costeaux",      tag: "eat", note: "午餐 / bakery" },
-          { time: "13:00", loc: "macrostie",     tag: "activity", note: "酒庄 tasting (露台)" },
+          { time: "9:00", loc: "SJ", tag: "drive", note: "出发", special: "origin" },
+          { time: "11:30", loc: "costeaux", tag: "eat", note: "午餐 / bakery" },
+          { time: "13:00", loc: "macrostie", tag: "activity", note: "酒庄 tasting (露台)" },
           { time: "16:30", loc: "sonomaOverlook", tag: "activity", note: "落日 (可选)" },
-          { time: "19:00", loc: "brassRabbit",   tag: "eat", note: "晚餐" },
-          { time: "夜宿",   loc: "healdsburg",    tag: "sleep", note: "h2hotel / Madrona" },
+          { time: "19:00", loc: "brassRabbit", tag: "eat", note: "晚餐" },
+          { time: "夜宿", loc: "healdsburg", tag: "sleep", note: "h2hotel / Madrona" },
         ]
       },
-      {
-        day: 2, label: "Day 2 · 5/24 (周日) ⭐ 高光日", meta: "Healdsburg → 128 → Elk → Mendocino",
+      { day: 2, label: "Day 2 · 5/24 (周日) ⭐ 高光日", meta: "Healdsburg → 128 → Elk → Mendocino",
         stops: [
-          { time: "9:00",  loc: "healdsburg",    tag: "drive", note: "出发走 128" },
-          { time: "10:30", loc: "hendyWoods",    tag: "activity", note: "Old-growth redwood 30min" },
-          { time: "11:30", loc: "pennyroyal",    tag: "activity", note: "山羊奶酪 + tasting 1h" },
-          { time: "13:30", loc: "harborHouse",   tag: "must eat", note: "⭐⭐ 米其林二星 lunch (海崖)" },
-          { time: "15:30", loc: "scpLodge",      tag: "sleep", note: "入住" },
-          { time: "17:00", loc: "headlands",     tag: "activity", note: "Headlands + Arch + 书店" },
-          { time: "19:30", loc: "luna",          tag: "must eat", note: "Luna garden 位" },
-          { time: "夜宿",   loc: "scpLodge",      tag: "sleep" },
+          { time: "9:00", loc: "healdsburg", tag: "drive", note: "出发走 128" },
+          { time: "10:30", loc: "hendyWoods", tag: "activity", note: "Old-growth redwood 30min" },
+          { time: "11:30", loc: "pennyroyal", tag: "activity", note: "山羊奶酪 + tasting 1h" },
+          { time: "13:30", loc: "harborHouse", tag: "must eat", note: "⭐⭐ 米其林二星 lunch $150" },
+          { time: "15:30", loc: "scpLodge", tag: "sleep", note: "入住" },
+          { time: "16:30", loc: "pacificStar", tag: "activity", note: "悬崖酒庄 (5pm 关门)" },
+          { time: "17:30", loc: "headlands", tag: "activity", note: "Headlands + Arch + 书店" },
+          { time: "19:30", loc: "luna", tag: "must eat", note: "Luna garden 位" },
+          { time: "夜宿", loc: "scpLodge", tag: "sleep" },
         ]
       },
-      {
-        day: 3, label: "Day 3 · 5/25 (周一)", meta: "Mendocino → Hwy 1 海岸 → SJ (loop 回程,~5h)",
+      { day: 3, label: "Day 3 · 5/25 (周一)", meta: "Mendocino → Hwy 1 海岸 → SJ (loop 回程,~5h)",
         stops: [
-          { time: "8:30",  loc: "cafeBeau",      tag: "eat", note: "早餐" },
-          { time: "9:30",  loc: "botanicalGdn",  tag: "must activity", note: "Botanical Gdns 2.5h" },
-          { time: "12:30", loc: "pacificStar",   tag: "activity", note: "悬崖酒庄 + tasting + 野餐" },
-          { time: "14:30", loc: "pointArena",    tag: "activity", note: "Hwy 1 沿途停脚" },
-          { time: "16:30", loc: "goatRock",      tag: "activity", note: "Russian River 入海口" },
-          { time: "20:00", loc: "SJ",            tag: "drive", note: "✅ 到家 (赶)", special: "origin" },
+          { time: "8:30", loc: "goodlife", tag: "eat", note: "早餐" },
+          { time: "9:30", loc: "botanicalGdn", tag: "must activity", note: "Botanical Gdns 2.5h,11am 前到" },
+          { time: "12:30", loc: "scpLodge", tag: "drive", note: "出发走 Hwy 1 南下" },
+          { time: "14:30", loc: "pointArena", tag: "activity", note: "Hwy 1 沿途停脚" },
+          { time: "16:30", loc: "goatRock", tag: "activity", note: "Russian River 入海口" },
+          { time: "20:00", loc: "SJ", tag: "drive", note: "✅ 到家", special: "origin" },
         ]
       }
     ]
   }
 };
 
-// Tag display
-const TAG_LABEL = {
-  must: "必去", book: "需预订", eat: "🍽️", sleep: "🛏️", activity: "🎯", drive: "🚗"
-};
-const TAG_CLASS = {
-  "must eat": "must", "must activity": "must",
-  eat: "eat", sleep: "sleep", activity: "activity", drive: "drive", book: "book"
-};
+// ============================================================
+// Render
+// ============================================================
 
-// ===== Map setup =====
 const map = L.map('map', { zoomControl: true }).setView([38.9, -123.0], 8);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 18,
-  attribution: '© OpenStreetMap'
-}).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
 
 let currentMarkers = [], currentLines = [];
-
 function clearMap() {
   currentMarkers.forEach(m => map.removeLayer(m));
   currentLines.forEach(l => map.removeLayer(l));
   currentMarkers = []; currentLines = [];
 }
-
-function getLoc(key) {
-  if (key === "SJ") return SJ;
-  return LOC[key];
-}
+function getLoc(key) { return key === "SJ" ? SJ : LOC[key]; }
 
 function renderPlan(planKey) {
   const plan = PLANS[planKey];
-  // Sidebar
   const sb = document.getElementById('sidebar');
   let html = `<div class="summary-card">
     <h2>${plan.name}</h2>
     <span class="pace" style="background: ${plan.paceColor}22; color: ${plan.paceColor}">节奏: ${plan.pace}</span>
     <div class="tradeoff">${plan.tradeoff}</div>
-    <div class="stats">
-      <span class="stat">🏠 ${plan.sleep}</span>
-    </div>
+    <div class="stats"><span class="stat">🏠 ${plan.sleep}</span></div>
     <div class="recommend">${plan.recommend}</div>
   </div>`;
-  plan.days.forEach((d, dIdx) => {
+  plan.days.forEach((d) => {
     html += `<div class="day" data-day="${d.day}">
       <div class="day-header"><span class="label">${d.label}</span><span class="meta">${d.meta}</span></div>
       <ul class="stops">`;
     d.stops.forEach((s, i) => {
       const loc = getLoc(s.loc);
       if (!loc) return;
-      const tagCls = TAG_CLASS[s.tag] || "activity";
+      const tagCls = s.tag.includes("must") ? "must" :
+                     s.tag === "eat" ? "eat" : s.tag === "sleep" ? "sleep" :
+                     s.tag === "drive" ? "drive" : "activity";
       const tagText = s.tag.includes("must") ? "必去/必订" :
                        s.tag === "eat" ? "🍽️ 吃" :
                        s.tag === "sleep" ? "🛏️ 住" :
                        s.tag === "drive" ? "🚗 开车" :
-                       s.tag === "activity" ? "🎯 玩" : s.tag;
+                       "🎯 玩";
       html += `<li class="stop" data-day="${d.day}" data-idx="${i}" data-loc="${s.loc}">
         <div class="dot">${i+1}</div>
         <div class="stop-content">
           <div class="stop-time">${s.time} <span class="tag ${tagCls}">${tagText}</span></div>
-          <div class="stop-name">${loc.name}</div>
-          ${s.note ? `<div class="stop-note">${s.note}</div>` : ''}
+          <div class="stop-name">${loc.name} ${loc.marker ? `<span class="stop-marker">${loc.marker}</span>` : ''}</div>
+          ${loc.desc ? `<div class="stop-desc">${loc.desc}</div>` : ''}
+          ${s.note ? `<div class="stop-note">📌 ${s.note}</div>` : ''}
         </div>
       </li>`;
     });
@@ -502,7 +422,6 @@ function renderPlan(planKey) {
   });
   sb.innerHTML = html;
 
-  // Map: clear, then add markers + polylines per day
   clearMap();
   const allCoords = [];
   plan.days.forEach(d => {
@@ -510,8 +429,8 @@ function renderPlan(planKey) {
     d.stops.forEach((s, i) => {
       const loc = getLoc(s.loc);
       if (!loc) return;
-      dayCoords.push([loc.lat, loc.lon]);
-      allCoords.push([loc.lat, loc.lon]);
+      dayCoords.push(loc.coords);
+      allCoords.push(loc.coords);
       const isOrigin = s.special === "origin";
       const cls = isOrigin ? "marker-num origin" : `marker-num day${d.day}`;
       const icon = L.divIcon({
@@ -519,25 +438,21 @@ function renderPlan(planKey) {
         html: `<div class="${cls}">${isOrigin ? '🏠' : (i+1)}</div>`,
         iconSize: [28, 28], iconAnchor: [14, 14]
       });
-      const marker = L.marker([loc.lat, loc.lon], { icon }).addTo(map);
-      marker.bindPopup(`<b>${loc.name}</b>
+      const marker = L.marker(loc.coords, { icon }).addTo(map);
+      marker.bindPopup(`<b>${loc.name} ${loc.marker || ''}</b>
         <div class="pop-meta">Day ${d.day} · 第 ${i+1} 站 · ${s.time}</div>
-        ${s.note ? `<div>${s.note}</div>` : ''}`);
+        ${loc.desc ? `<div class="pop-desc">${loc.desc}</div>` : ''}
+        ${s.note ? `<div class="pop-meta">📌 ${s.note}</div>` : ''}`);
       currentMarkers.push(marker);
     });
     if (dayCoords.length >= 2) {
       const dayColor = d.day === 1 ? '#16a34a' : d.day === 2 ? '#ea580c' : '#7c3aed';
-      const line = L.polyline(dayCoords, {
-        color: dayColor, weight: 3, opacity: .65, dashArray: '6,8'
-      }).addTo(map);
+      const line = L.polyline(dayCoords, { color: dayColor, weight: 3, opacity: .65, dashArray: '6,8' }).addTo(map);
       currentLines.push(line);
     }
   });
-  if (allCoords.length) {
-    map.fitBounds(allCoords, { padding: [40, 40] });
-  }
+  if (allCoords.length) map.fitBounds(allCoords, { padding: [40, 40] });
 
-  // Wire up sidebar click → highlight + fly to marker
   document.querySelectorAll('.stop').forEach(el => {
     el.addEventListener('click', () => {
       const locKey = el.dataset.loc;
@@ -545,8 +460,7 @@ function renderPlan(planKey) {
       if (!loc) return;
       document.querySelectorAll('.stop').forEach(x => x.classList.remove('highlighted'));
       el.classList.add('highlighted');
-      map.flyTo([loc.lat, loc.lon], 12, { duration: 0.6 });
-      // open the marker's popup
+      map.flyTo(loc.coords, 12, { duration: 0.6 });
       const dayIdx = parseInt(el.dataset.day) - 1;
       const stopIdx = parseInt(el.dataset.idx);
       let cumIdx = 0;
@@ -563,7 +477,6 @@ function renderPlan(planKey) {
   });
 }
 
-// Tab handling
 document.querySelectorAll('.plan-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.plan-tab').forEach(t => t.classList.remove('active'));
@@ -572,7 +485,6 @@ document.querySelectorAll('.plan-tab').forEach(tab => {
   });
 });
 
-// Initial render
 renderPlan('A');
 </script>
 
