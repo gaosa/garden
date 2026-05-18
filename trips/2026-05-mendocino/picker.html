@@ -633,7 +633,16 @@ const INVENTORY = [
   },
 ];
 
-const STORAGE_KEY = 'mendocino_picker_v3';
+const STORAGE_KEY = 'mendocino_picker_v4';
+
+// DEFAULT_PRIORITIES — pre-filled from markdown trip doc's `★ 评分:` fields.
+// Merged with localStorage on load: defaults applied first, then user's UI changes
+// overlay (so editing markdown later doesn't clobber what user already rated in UI).
+// Update this when user adds ratings in trip markdown.
+const DEFAULT_PRIORITIES = {
+  // e.g. lunaTrattoria: 3, harborHouse: 3, botanicalGdn: 3,
+  // (currently empty — user hasn't marked any in markdown yet)
+};
 let state = {
   days: [
     { id: 1, dateISO: '2026-05-23' },
@@ -646,8 +655,8 @@ let state = {
   search: '',
   mobileTab: 'left',
   nextDayId: 4,
-  priorities: {},     // {itemId: 1-3}
-  minPriority: 0,     // filter: show items with priority >= this. 0 = show all
+  priorities: { ...DEFAULT_PRIORITIES },  // start with markdown defaults; load() will merge user's saved
+  minPriority: 0,
 };
 
 function load() {
@@ -659,7 +668,7 @@ function load() {
       if (saved.schedule) state.schedule = saved.schedule;
       if (saved.nextDayId) state.nextDayId = saved.nextDayId;
       if (saved.activeDay && state.days.find(d => d.id === saved.activeDay)) state.activeDay = saved.activeDay;
-      if (saved.priorities) state.priorities = saved.priorities;
+      if (saved.priorities) state.priorities = { ...state.priorities, ...saved.priorities };  // MERGE, not replace
       if (typeof saved.minPriority === 'number') state.minPriority = saved.minPriority;
     }
   } catch(e) { console.warn('load failed', e); }
